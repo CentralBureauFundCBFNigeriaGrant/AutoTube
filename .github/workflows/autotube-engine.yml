@@ -1,31 +1,35 @@
 name: Marvel Stand-Alone Soldier
+
 on:
   push:
     paths:
       - 'mission.txt'
+  workflow_dispatch:
 
 jobs:
   heavy-lifting:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Generate Content with Ollama
-        uses: ai-action/ollama-action@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          model: llama3.2
-          prompt: "Write a 30s YouTube Short script about ${{ github.event.head_commit.message }}"
+          python-version: '3.9'
 
-      - name: Marvel Video Render
+      - name: Install Dependencies
         run: |
-          pip install moviepy gTTS google-api-python-client google-auth-oauthlib
-          # The Python script here will generate the MP4 and then call the Upload function
-          python marvel_engine.py
+          python -m pip install --upgrade pip
+          pip install google-generativeai
 
-      - name: AutoTube Post
+      - name: Run Marvel Engine
         env:
-          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: python upload_to_yt.py
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python marvel_engine.py
+
+      - name: Upload Script Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-script
+          path: generated_script.md
