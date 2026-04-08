@@ -1,0 +1,25 @@
+name: AutoTube Marvel Engine
+
+on:
+  push:
+    paths:
+      - 'video-config.json'  # This triggers the engine every time you edit the JSON
+
+jobs:
+  build-and-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Process Video Data
+        run: |
+          echo "Automation Triggered!"
+          echo "Reading video-config.json..."
+          # This is where the Marvel engine logic sits to 
+          # send data to your AI video/image services.
+          cat video-config.json
+          
+      - name: Status Update
+        run: echo "Marvel Engine has processed the new viral idea."
+        
