@@ -1,25 +1,31 @@
-name: AutoTube Marvel Engine
-
+name: Marvel Stand-Alone Soldier
 on:
   push:
     paths:
-      - 'video-config.json'  # This triggers the engine every time you edit the JSON
+      - 'mission.txt'
 
 jobs:
-  build-and-generate:
+  heavy-lifting:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Process Video Data
+      - name: Generate Content with Ollama
+        uses: ai-action/ollama-action@v2
+        with:
+          model: llama3.2
+          prompt: "Write a 30s YouTube Short script about ${{ github.event.head_commit.message }}"
+
+      - name: Marvel Video Render
         run: |
-          echo "Automation Triggered!"
-          echo "Reading video-config.json..."
-          # This is where the Marvel engine logic sits to 
-          # send data to your AI video/image services.
-          cat video-config.json
-          
-      - name: Status Update
-        run: echo "Marvel Engine has processed the new viral idea."
-        
+          pip install moviepy gTTS google-api-python-client google-auth-oauthlib
+          # The Python script here will generate the MP4 and then call the Upload function
+          python marvel_engine.py
+
+      - name: AutoTube Post
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python upload_to_yt.py
