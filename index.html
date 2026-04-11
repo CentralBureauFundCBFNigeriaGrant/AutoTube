@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube Command Center | v1.2</title>
+    <title>AutoTube Command Center | v1.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        body { background-color: #0f172a; color: white; font-family: sans-serif; overflow-x: hidden; }
         .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .niche-tag { cursor: pointer; transition: 0.3s; padding: 12px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 8px; font-size: 14px; background: #0f172a; }
         .active-niche { border: 2px solid #6366f1; background: #1e293b !important; color: #818cf8; font-weight: bold; }
+        .idea-card { cursor: pointer; border: 1px solid #334155; transition: 0.2s; }
+        .idea-card:hover { border-color: #6366f1; background: #1e293b; }
     </style>
 </head>
 <body class="p-4 lg:p-10">
 
-    <div class="max-w-4xl mx-auto bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
+    <div class="max-w-5xl mx-auto bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden">
         <div class="p-6 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold gradient-text">AutoTube Command</h1>
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Lead Developer Mode</p>
+                <h1 class="text-2xl font-bold gradient-text">AutoTube Command Center</h1>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Automation Engine v1.3</p>
             </div>
-            <div class="text-right">
-                <span id="activeNicheDisplay" class="text-indigo-400 font-mono text-xs">NO ACTIVE NICHE</span>
-            </div>
+            <div id="activeNicheDisplay" class="text-indigo-400 font-mono text-xs font-bold">NO ACTIVE NICHE</div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3">
-            <div class="p-6 border-r border-slate-700 bg-slate-900/20">
-                <h2 class="text-xs font-semibold text-slate-400 mb-4 uppercase">Target Niches</h2>
-                <div class="flex gap-2 mb-4">
-                    <input id="nicheInput" type="text" placeholder="New Niche..." 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm outline-none focus:border-indigo-500">
-                    <button onclick="addNiche()" class="bg-indigo-600 px-3 rounded-lg text-lg">+</button>
+        <div class="grid grid-cols-1 md:grid-cols-4">
+            <div class="p-6 border-r border-slate-700 bg-slate-900/20 md:col-span-1">
+                <h2 class="text-xs font-semibold text-slate-400 mb-4 uppercase">Niches</h2>
+                <div id="nicheList" class="mb-6"></div>
+                <div class="flex gap-2">
+                    <input id="nicheInput" type="text" placeholder="Add..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs">
+                    <button onclick="addNiche()" class="bg-indigo-600 px-3 rounded">+</button>
                 </div>
-                <div id="nicheList">
-                    </div>
             </div>
 
-            <div class="md:col-span-2 p-6 bg-slate-800/50">
-                <button id="generateBtn" onclick="runAutoTube()" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold text-lg mb-6 shadow-lg transition-all active:scale-95">
-                    GENERATE STRATEGY
+            <div class="md:col-span-3 p-6 bg-slate-800/50">
+                <button id="generateBtn" onclick="runAutoTube()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold text-lg mb-6 transition-all active:scale-95 shadow-lg shadow-indigo-500/20">
+                    GENERATE IDEAS
                 </button>
 
-                <div id="status" class="text-center text-xs text-slate-500 mb-4 italic italic">Ready for command...</div>
+                <div id="status" class="text-center text-xs text-slate-500 mb-4">System Idle</div>
 
-                <div id="resultArea" class="hidden">
-                    <div class="bg-slate-950 p-5 rounded-xl border border-indigo-500/20">
-                        <h3 class="text-indigo-400 font-bold text-[10px] mb-3 uppercase tracking-widest">AI Content Plan:</h3>
-                        <p id="ideaText" class="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap font-mono"></p>
+                <div id="ideasGrid" class="grid grid-cols-1 gap-4 mb-8"></div>
+
+                <div id="productionRoom" class="hidden border-t border-slate-700 pt-6 animate-pulse-slow">
+                    <h2 class="text-indigo-400 font-bold text-sm mb-4 uppercase tracking-widest">Production: <span id="selectedTitle" class="text-white"></span></h2>
+                    <div class="bg-slate-900 rounded-xl p-4 border border-indigo-500/30">
+                        <button onclick="generateScript()" id="scriptBtn" class="bg-emerald-600 hover:bg-emerald-500 text-xs px-4 py-2 rounded font-bold mb-4">GENERATE FULL SCRIPT</button>
+                        <div id="scriptOutput" class="text-slate-300 text-sm font-mono whitespace-pre-wrap leading-relaxed">Waiting for command...</div>
                     </div>
                 </div>
             </div>
@@ -56,99 +56,96 @@
     </div>
 
     <script>
-        // Data Management
         let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI News", "Pregnancy Tips", "Luxury Vlogs"];
         let currentNiche = niches[0] || "";
+        let activeIdea = "";
 
-        const API_KEY = "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"; 
+        const API_KEY = "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"; // <--- PASTE KEY HERE
 
-        // 1. Initialize the page
         function init() {
             renderNiches();
             selectNiche(currentNiche);
         }
 
-        // 2. Add a new niche to the list
         function addNiche() {
-            const input = document.getElementById('nicheInput');
-            const val = input.value.trim();
-            if(val) {
-                niches.push(val);
-                localStorage.setItem('myNiches', JSON.stringify(niches));
-                input.value = "";
-                renderNiches();
-            }
+            const val = document.getElementById('nicheInput').value.trim();
+            if(val) { niches.push(val); localStorage.setItem('myNiches', JSON.stringify(niches)); renderNiches(); }
         }
 
-        // 3. Render the clickable list
         function renderNiches() {
-            const list = document.getElementById('nicheList');
-            list.innerHTML = niches.map(n => `
-                <div onclick="selectNiche('${n}')" class="niche-tag ${n === currentNiche ? 'active-niche' : ''}">
-                    ${n}
-                </div>
+            document.getElementById('nicheList').innerHTML = niches.map(n => `
+                <div onclick="selectNiche('${n}')" class="niche-tag ${n === currentNiche ? 'active-niche' : ''}">${n}</div>
             `).join('');
         }
 
-        // 4. Update the selection
         function selectNiche(n) {
             currentNiche = n;
             document.getElementById('activeNicheDisplay').innerText = "MODE: " + n.toUpperCase();
             renderNiches();
         }
 
-        // 5. Run the AI Connection
         async function runAutoTube() {
-            const ideaText = document.getElementById('ideaText');
-            const resultArea = document.getElementById('resultArea');
+            const grid = document.getElementById('ideasGrid');
             const status = document.getElementById('status');
             const btn = document.getElementById('generateBtn');
-
-            if (!currentNiche) return alert("Please select a niche on the left.");
-
-            // UI Feedback
-            status.innerText = `Analyzing niche: ${currentNiche}...`;
+            
+            status.innerText = "Connecting to Llama 3...";
             btn.disabled = true;
-            btn.innerText = "THINKING...";
-            resultArea.classList.add('hidden');
+            grid.innerHTML = "";
 
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant",
-                        messages: [{
-                            role: "user",
-                            content: `Act as a YouTube expert for the niche: ${currentNiche}. 
-                            Provide 5 viral video ideas with a catchy title and a 1-sentence hook for each. 
-                            Keep it concise and ready for upload.`
-                        }],
-                        temperature: 0.8
+                        messages: [{ role: "user", content: `List 5 YouTube titles for the niche "${currentNiche}". Format ONLY as a JSON list like this: ["Title 1", "Title 2"...]` }],
+                        temperature: 0.7
                     })
                 });
-
                 const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-
-                // Show Results
-                ideaText.innerText = data.choices[0].message.content;
-                resultArea.classList.remove('hidden');
-                status.innerText = "Ideas ready for deployment.";
-
-            } catch (error) {
-                status.innerText = "Connection error.";
-                alert("Groq Error: " + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "GENERATE STRATEGY";
-            }
+                const titles = JSON.parse(data.choices[0].message.content);
+                
+                grid.innerHTML = titles.map(t => `
+                    <div onclick="prepProduction('${t}')" class="idea-card p-4 rounded-lg bg-slate-900 text-sm font-bold">
+                        ${t} <span class="text-indigo-500 block text-[10px] mt-1">TAP TO START PRODUCTION</span>
+                    </div>
+                `).join('');
+                status.innerText = "Select an idea to start production.";
+            } catch (e) { alert("Error: " + e.message); }
+            finally { btn.disabled = false; }
         }
 
-        // Run on load
+        function prepProduction(title) {
+            activeIdea = title;
+            document.getElementById('productionRoom').classList.remove('hidden');
+            document.getElementById('selectedTitle').innerText = title;
+            document.getElementById('scriptOutput').innerText = "Idea locked in. Ready to write script.";
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function generateScript() {
+            const output = document.getElementById('scriptOutput');
+            const sBtn = document.getElementById('scriptBtn');
+            sBtn.innerText = "WRITING...";
+            sBtn.disabled = true;
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant",
+                        messages: [{ role: "user", content: `Write a 60-second YouTube Short script for: "${activeIdea}". Include a Hook, Body, and Call to Action.` }],
+                        temperature: 0.7
+                    })
+                });
+                const data = await response.json();
+                output.innerText = data.choices[0].message.content;
+            } catch (e) { alert(e.message); }
+            finally { sBtn.innerText = "GENERATE FULL SCRIPT"; sBtn.disabled = false; }
+        }
+
         init();
     </script>
 </body>
