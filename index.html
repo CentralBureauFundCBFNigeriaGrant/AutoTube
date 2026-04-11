@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube v1.9 | Clean Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>AutoTube v1.9.1 | Stable Engine</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
         .yt-red { background-color: #f00; }
@@ -91,17 +91,19 @@
         async function toggleMic() {
             const btn = document.getElementById('recBtn');
             if (!recorder || recorder.state === "inactive") {
-                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                recorder = new MediaRecorder(s);
-                chunks = [];
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const b = new Blob(chunks, { type: 'audio/mpeg' });
-                    document.getElementById('vAud').src = URL.createObjectURL(b);
-                    document.getElementById('vPlay').classList.remove('hidden');
-                };
-                recorder.start();
-                btn.innerText = "RECORDING..."; btn.classList.add('pulse', 'text-red-600');
+                try {
+                    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    recorder = new MediaRecorder(s);
+                    chunks = [];
+                    recorder.ondataavailable = e => chunks.push(e.data);
+                    recorder.onstop = () => {
+                        const b = new Blob(chunks, { type: 'audio/mpeg' });
+                        document.getElementById('vAud').src = URL.createObjectURL(b);
+                        document.getElementById('vPlay').classList.remove('hidden');
+                    };
+                    recorder.start();
+                    btn.innerText = "RECORDING..."; btn.classList.add('pulse', 'text-red-600');
+                } catch(e) { alert("Mic error: " + e.message); }
             } else {
                 recorder.stop();
                 btn.innerText = "RECORD DNA"; btn.classList.remove('pulse', 'text-red-600');
@@ -124,55 +126,48 @@
 
         // --- ENGINE ---
         async function genIdeas() {
-            const g = document.getElementById('iGrid'); g.innerHTML = "<p class='p-5 text-gray-600'>Thinking...</p>";
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${G_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 short titles for ${curN}. JSON: ["T1","T2"]`}]})
-            });
-            const d = await r.json();
-            const t = JSON.parse(d.choices[0].message.content);
-            g.innerHTML = t.map(x => `<div onclick="goStudio('${x}')" class="card hover:border-red-600 cursor-pointer"><h4 class="text-sm font-bold">${x}</h4><p class="text-[9px] text-red-600 mt-2">PRODUCE →</p></div>`).join('');
+            const g = document.getElementById('iGrid'); 
+            g.innerHTML = "<p class='p-5 text-gray-600'>Thinking...</p>";
+            try {
+                const r = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                    method: "POST", headers: {"Authorization": `Bearer ${G_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Provide exactly 5 short titles for the topic ${curN}. Return ONLY a raw JSON array of strings like ["Title 1","Title 2"]. No markdown, no intro text.`}]})
+                });
+                const d = await r.json();
+                let rawText = d.choices[0].message.content;
+                
+                // Bulletproof cleanup: remove markdown blocks if the AI ignores instructions
+                rawText = rawText.replace(/```json/gi, '').replace(/```/gi, '').trim();
+                
+                const t = JSON.parse(rawText);
+                g.innerHTML = t.map(x => `<div onclick="goStudio('${x.replace(/'/g, "\\'")}')" class="card hover:border-red-600 cursor-pointer"><h4 class="text-sm font-bold">${x}</h4><p class="text-[9px] text-red-600 mt-2">PRODUCE →</p></div>`).join('');
+            } catch(err) {
+                g.innerHTML = `<p class='p-5 text-red-500 text-xs'>Failed to parse ideas. Click generate again.</p>`;
+            }
         }
 
-        function goStudio(t) { document.getElementById('prod').classList.remove('hidden'); window.scrollTo(0,document.body.scrollHeight); }
+        function goStudio(t) { 
+            document.getElementById('prod').classList.remove('hidden'); 
+            setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100); 
+        }
 
         async function genScr() {
-            document.getElementById('sBtn').innerText = "...";
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${G_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `4 scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
-            });
-            const d = await r.json();
-            const s = d.choices[0].message.content;
-            document.getElementById('sOut').innerText = s;
-            scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
-            document.getElementById('tLine').innerHTML = scenes.map((x, i) => `
-                <div class="timeline-card">
-                    <p class="text-[9px] text-gray-500 mb-1 uppercase font-bold">Scene ${i+1}</p>
-                    <p class="text-[11px] h-12 overflow-hidden italic text-gray-300">"${x.trim()}"</p>
-                    <div id="v-${i}" class="mt-2 text-[9px] text-gray-600">Awaiting voice...</div>
-                </div>`).join('');
-            document.getElementById('sBtn').innerText = "SCRIPT";
-        }
-
-        async function syncV() {
-            const vid = document.getElementById('vId').value || "pNInz6obpgnuMsc3W95Q";
-            document.getElementById('vBtn').innerText = "SYNCING...";
-            for(let i=0; i<scenes.length; i++) {
-                const s = document.getElementById(`v-${i}`);
-                s.innerHTML = "<span class='text-red-600 animate-pulse'>GENERATING...</span>";
-                const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}`, {
-                    method: "POST", headers: {"xi-api-key": E_KEY, "Content-Type": "application/json"},
-                    body: JSON.stringify({text: scenes[i].trim(), model_id: "eleven_monolingual_v1"})
+            const btn = document.getElementById('sBtn');
+            btn.innerText = "...";
+            try {
+                const r = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                    method: "POST", headers: {"Authorization": `Bearer ${G_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Write a 4 scene script for ${curN}. You MUST format exactly like this: [S1] text [S2] text [S3] text [S4] text. Do not add any other words.`}]})
                 });
-                const blob = await r.blob();
-                if(blob.size < 100) { s.innerHTML = "Error (Empty)"; } 
-                else { s.innerHTML = `<audio controls class="h-6 w-full"><source src="${URL.createObjectURL(blob)}"></audio>`; }
-            }
-            document.getElementById('vBtn').innerText = "SYNC VOICE";
-        }
-
-        init();
-    </script>
-</body>
-</html>
+                const d = await r.json();
+                const s = d.choices[0].message.content;
+                document.getElementById('sOut').innerText = s;
+                
+                scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
+                
+                document.getElementById('tLine').innerHTML = scenes.map((x, i) => `
+                    <div class="timeline-card">
+                        <p class="text-[9px] text-gray-500 mb-1 uppercase font-bold">Scene ${i+1}</p>
+                        <p class="text-[11px] h-12 overflow-hidden italic text-gray-300">"${x.trim()}"</p>
+                        <div id="v-${i}" class="mt
+                        
