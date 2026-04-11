@@ -75,7 +75,7 @@
     {
       method: "POST",
       headers: {
-        "Authorization": "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",
+        "Authorization": "Bearer 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",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -86,7 +86,7 @@
 
   const data = await response.json();
   return data[0]?.generated_text || "Try again...";
-}
+    }
             } catch (error) {
                 console.error(error);
                 alert("Error: " + error.message);
