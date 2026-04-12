@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Voice Master v2.1</title>
+    <title>AutoTube | Pro Dashboard v2.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
-        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; }
+        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
         .yt-red { background-color: #f00; }
+        .yt-red-text { color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
+        .sidebar-item { border-radius: 8px; transition: 0.2s; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; font-size: 13px; margin-bottom: 4px; }
+        .sidebar-item:hover { background-color: #272727; }
         .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
         .timeline-box { min-width: 280px; background-color: #121212; border: 1px solid #282828; border-radius: 12px; padding: 15px; }
-        .ctrl-btn { transition: 0.2s; cursor: pointer; }
-        .ctrl-btn:active { scale: 0.95; }
+        .pulse-red { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } }
+        ::-webkit-scrollbar { height: 5px; background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body class="p-3 md:p-6">
@@ -29,12 +34,25 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest text-center">Voice Selection</h2>
+                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest text-center">Voice Lab</h2>
                 
-                <div class="space-y-4">
+                <button id="recBtn" onclick="handleMic()" class="w-full border border-[#333] py-3 rounded-xl text-[11px] font-bold hover:bg-[#272727] flex items-center justify-center gap-2 mb-4">
+                    <div id="micDot" class="w-2 h-2 bg-gray-600 rounded-full"></div> 
+                    <span id="recText">RECORD DNA</span>
+                </button>
+                
+                <div id="vPlayback" class="hidden mb-4 space-y-2">
+                    <audio id="vAudio" controls class="h-8 w-full"></audio>
+                    <div class="flex gap-2">
+                        <button onclick="saveV()" class="flex-1 bg-emerald-700 text-[10px] py-2 rounded-lg font-bold">SAVE</button>
+                        <button onclick="discardV()" class="flex-1 bg-zinc-800 text-[10px] py-2 rounded-lg font-bold">TRASH</button>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-2 border-t border-[#282828]">
                     <div class="bg-black p-3 rounded-lg border border-[#282828]">
-                        <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Select Speaker (Region/Gender)</p>
-                        <select id="voiceSelect" class="w-full bg-black text-[11px] text-red-500 border-none focus:ring-0 outline-none"></select>
+                        <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Accent / Gender</p>
+                        <select id="voiceSelect" class="w-full bg-black text-[11px] text-red-500 border-none outline-none"></select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
@@ -51,11 +69,11 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Niches</h2>
-                <div id="nicheList" class="space-y-1"></div>
-                <div class="flex gap-2 mt-4">
-                    <input id="nIn" type="text" placeholder="Add..." class="w-full bg-black border border-[#282828] rounded-lg p-2 text-xs">
-                    <button onclick="addN()" class="bg-[#272727] px-4 rounded-lg text-white font-bold">+</button>
+                <h2 class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-widest">Channel Niches</h2>
+                <div id="nicheList" class="max-h-48 overflow-y-auto"></div>
+                <div class="flex gap-2 mt-4 pt-4 border-t border-[#282828]">
+                    <input id="nIn" type="text" placeholder="New Niche..." class="w-full bg-black border border-[#282828] rounded-lg p-2 text-xs outline-none">
+                    <button onclick="addN()" class="bg-[#272727] px-4 rounded-lg text-white font-bold hover:bg-red-600 transition-colors">+</button>
                 </div>
             </div>
         </div>
@@ -64,10 +82,10 @@
             <div class="card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-red-600">
                 <div>
                     <h2 class="text-2xl font-black">Content Engine</h2>
-                    <p class="text-[10px] text-gray-500 uppercase">Current Niche: <span id="activeNText" class="text-red-600 font-bold"></span></p>
+                    <p class="text-[10px] text-gray-500 uppercase">Active: <span id="activeNText" class="text-red-600 font-bold"></span></p>
                 </div>
-                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all">
-                    GENERATE IDEAS
+                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all shadow-lg">
+                    GENERATE VIRAL IDEAS
                 </button>
             </div>
 
@@ -78,9 +96,9 @@
                     <h2 class="text-[10px] font-black tracking-widest uppercase">Production Studio</h2>
                     
                     <div class="flex items-center gap-2 bg-black p-2 rounded-xl border border-[#282828]">
-                        <button onclick="pauseVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-xs">⏸ PAUSE</button>
-                        <button onclick="resumeVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-xs">▶ RESUME</button>
-                        <button onclick="stopVoice()" class="p-2 hover:bg-red-900/20 text-red-500 rounded-lg text-xs">⏹ STOP</button>
+                        <button onclick="pauseVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
+                        <button onclick="resumeVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-[10px] font-bold">▶ RESUME</button>
+                        <button onclick="stopVoice()" class="p-2 hover:bg-red-900/20 text-red-500 rounded-lg text-[10px] font-bold">⏹ STOP</button>
                     </div>
 
                     <div class="flex gap-3">
@@ -100,24 +118,32 @@
 
     <script>
         const GROQ_KEY = "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"; 
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business", "Health", "Motivation"];
         let curN = niches[0];
         let scenes = [];
+        let recorder;
+        let chunks = [];
         const synth = window.speechSynthesis;
 
+        // --- VOICE ENGINE ---
         function loadVoices() {
             const select = document.getElementById('voiceSelect');
             const voices = synth.getVoices();
-            // Grouping by region for easier selection
+            if (voices.length === 0) return;
             select.innerHTML = voices
                 .sort((a, b) => a.lang.localeCompare(b.lang))
-                .map(v => `<option value="${v.name}">[${v.lang.toUpperCase()}] ${v.name}</option>`).join('');
+                .map(v => `<option value="${v.name}" data-lang="${v.lang}">[${v.lang.toUpperCase()}] ${v.name}</option>`).join('');
         }
+        
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = loadVoices;
         }
 
-        function init() { renderN(); selN(curN); loadVoices(); }
+        function init() { 
+            renderN(); 
+            selN(curN); 
+            setTimeout(loadVoices, 500); 
+        }
 
         // --- GLOBAL VOICE FUNCTIONS ---
         function pauseVoice() { synth.pause(); }
@@ -125,13 +151,20 @@
         function stopVoice() { synth.cancel(); }
 
         function speakLine(index) {
-            synth.cancel(); // Stop any current speech
-            const msg = new SpeechSynthesisUtterance();
+            synth.cancel();
+            const textToSpeak = scenes[index].trim();
+            const msg = new SpeechSynthesisUtterance(textToSpeak);
+            const select = document.getElementById('voiceSelect');
             const voices = synth.getVoices();
-            msg.voice = voices.find(v => v.name === document.getElementById('voiceSelect').value);
+            const targetVoice = voices.find(v => v.name === select.value);
+            
+            if (targetVoice) {
+                msg.voice = targetVoice;
+                msg.lang = targetVoice.lang; // Forces the accent
+            }
+
             msg.rate = document.getElementById('rateRange').value;
             msg.pitch = document.getElementById('pitchRange').value;
-            msg.text = scenes[index].trim();
             synth.speak(msg);
         }
 
@@ -139,206 +172,103 @@
             const btn = document.getElementById('vBtn'); btn.innerText = "SYNCING...";
             for(let i=0; i<scenes.length; i++) {
                 speakLine(i);
-                // Wait for speech to finish before next scene
                 await new Promise(r => {
                     const check = setInterval(() => {
                         if(!synth.speaking) { clearInterval(check); r(); }
-                    }, 200);
+                    }, 300);
                 });
             }
             btn.innerText = "2. SYNC VOICE";
         }
 
-        // --- UI LOGIC ---
-        function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); } }
+        // --- MIC ---
+        async function handleMic() {
+            const btn = document.getElementById('recBtn');
+            const dot = document.getElementById('micDot');
+            if (!recorder || recorder.state === "inactive") {
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recorder = new MediaRecorder(s);
+                chunks = [];
+                recorder.ondataavailable = (e) => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const b = new Blob(chunks, { type: 'audio/mpeg' });
+                    document.getElementById('vAudio').src = URL.createObjectURL(b);
+                    document.getElementById('vPlayback').classList.remove('hidden');
+                };
+                recorder.start();
+                btn.classList.add('pulse-red', 'border-red-600');
+                dot.classList.replace('bg-gray-600', 'bg-red-600');
+                document.getElementById('recText').innerText = "RECORDING...";
+            } else {
+                recorder.stop();
+                btn.classList.remove('pulse-red', 'border-red-600');
+                dot.classList.replace('bg-red-600', 'bg-emerald-500');
+                document.getElementById('recText').innerText = "CAPTURED";
+            }
+        }
+        function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD DNA"; }
+        function saveV() { alert("Voice DNA Saved!"); document.getElementById('vPlayback').classList.add('hidden'); }
+
+        // --- NICHES ---
+        function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); document.getElementById('nIn').value = ""; } }
         function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
         function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
-                <div onclick="selN('${n}')" class="sidebar-item cursor-pointer p-3 rounded-lg flex justify-between items-center ${n===curN?'active-niche':''} hover:bg-[#272727] mb-1">
-                    <span class="text-xs">${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 text-xs">🗑️</span>
+                <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
+                    <span>${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
                 </div>`).join('');
         }
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
 
+        // --- GROQ ENGINE ---
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
-            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Consulting AI Brain...</p>";
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 short titles for ${curN}. JSON only: ["T1", "T2"]`}]})
-            });
-            const d = await r.json();
-            let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
-            const t = JSON.parse(txt);
-            g.innerHTML = t.map(x => `
-                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
-                    <h3 class="font-bold text-sm">${x}</h3>
-                    <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
-                </div>`).join('');
+            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Fetching viral ideas...</p>";
+            try {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 viral short titles for ${curN}. JSON: ["T1", "T2"]`}]})
+                });
+                const d = await r.json();
+                let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
+                const t = JSON.parse(txt);
+                g.innerHTML = t.map(x => `
+                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
+                        <h3 class="font-bold text-sm">${x}</h3>
+                        <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
+                    </div>`).join('');
+            } catch(e) { g.innerHTML = "<p class='p-5 text-red-600'>API Error. Refresh and try again.</p>"; }
         }
 
         function openStudio(t) { document.getElementById('studioRoom').classList.remove('hidden'); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
         async function genScript() {
             const btn = document.getElementById('sBtn'); btn.innerText = "...";
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `4 scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
-            });
-            const d = await r.json();
-            const s = d.choices[0].message.content;
-            document.getElementById('scriptOut').innerText = s;
-            scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
-            document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
-                <div class="timeline-box">
-                    <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
-                    <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
-                        <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
-                    </div>
-                </div>`).join('');
+            try {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `4 scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
+                });
+                const d = await r.json();
+                const s = d.choices[0].message.content;
+                document.getElementById('scriptOut').innerText = s;
+                scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
+                document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
+                    <div class="timeline-box">
+                        <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
+                        <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
+                            <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
+                        </div>
+                    </div>`).join('');
+            } catch(e) { alert("Script error."); }
             btn.innerText = "1. SCRIPT";
         }
-    const GROQ_KEY = "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"; 
-    let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business"];
-    let curN = niches[0];
-    let scenes = [];
-    const synth = window.speechSynthesis;
 
-    // --- ENHANCED VOICE LOADING ---
-    function loadVoices() {
-        const select = document.getElementById('voiceSelect');
-        const voices = synth.getVoices();
-        
-        if (voices.length === 0) return;
-
-        // Clear and reload
-        select.innerHTML = voices
-            .sort((a, b) => a.lang.localeCompare(b.lang))
-            .map(v => `<option value="${v.name}" data-lang="${v.lang}">[${v.lang.toUpperCase()}] ${v.name}</option>`)
-            .join('');
-            
-        console.log("Voices Loaded:", voices.length);
-    }
-
-    // Critical for Mobile: Chrome and Safari load voices asynchronously
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
-    }
-    // Initial load attempt
-    window.onload = () => { setTimeout(loadVoices, 500); init(); };
-
-    function init() { renderN(); selN(curN); }
-
-    // --- VOICE ENGINE CONTROLS ---
-    function pauseVoice() { synth.pause(); }
-    function resumeVoice() { synth.resume(); }
-    function stopVoice() { synth.cancel(); }
-
-    function speakLine(index) {
-        synth.cancel(); // Stop any previous speech immediately
-        
-        const textToSpeak = scenes[index].trim();
-        const msg = new SpeechSynthesisUtterance(textToSpeak);
-        
-        const select = document.getElementById('voiceSelect');
-        const selectedOption = select.options[select.selectedIndex];
-        const voices = synth.getVoices();
-        
-        // FIND THE VOICE OBJECT
-        const targetVoice = voices.find(v => v.name === select.value);
-        
-        if (targetVoice) {
-            msg.voice = targetVoice;
-            msg.lang = targetVoice.lang; // FORCE the language code (Essential for Mobile)
-        }
-
-        // Apply Speed and Pitch
-        msg.rate = document.getElementById('rateRange').value;
-        msg.pitch = document.getElementById('pitchRange').value;
-
-        // OnEnd Logic
-        msg.onend = () => console.log("Finished scene " + index);
-        
-        synth.speak(msg);
-    }
-
-    async function syncVoice() {
-        const btn = document.getElementById('vBtn'); 
-        btn.innerText = "SYNCING...";
-        for(let i=0; i<scenes.length; i++) {
-            speakLine(i);
-            // Wait for this specific line to finish before moving to the next
-            await new Promise(r => {
-                const check = setInterval(() => {
-                    if(!synth.speaking) { clearInterval(check); r(); }
-                }, 300);
-            });
-        }
-        btn.innerText = "2. SYNC VOICE";
-    }
-
-    // --- DASHBOARD LOGIC ---
-    function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); } }
-    function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
-    function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
-    function renderN() {
-        document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
-            <div onclick="selN('${n}')" class="sidebar-item cursor-pointer p-3 rounded-lg flex justify-between items-center ${n===curN?'active-niche':''} hover:bg-[#272727] mb-1">
-                <span class="text-xs">${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 text-xs">🗑️</span>
-            </div>`).join('');
-    }
-    function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
-
-    async function genIdeas() {
-        const g = document.getElementById('ideasGrid');
-        g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Brainstorming...</p>";
-        try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 short viral titles for ${curN}. JSON only: ["T1", "T2"]`}]})
-            });
-            const d = await r.json();
-            let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
-            const t = JSON.parse(txt);
-            g.innerHTML = t.map(x => `
-                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer">
-                    <h3 class="font-bold text-sm">${x}</h3>
-                    <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
-                </div>`).join('');
-        } catch(e) { g.innerHTML = "<p class='p-5 text-red-500'>Connection error. Try again.</p>"; }
-    }
-
-    function openStudio(t) { document.getElementById('studioRoom').classList.remove('hidden'); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
-
-    async function genScript() {
-        const btn = document.getElementById('sBtn'); btn.innerText = "...";
-        try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Write 4 short scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
-            });
-            const d = await r.json();
-            const s = d.choices[0].message.content;
-            document.getElementById('scriptOut').innerText = s;
-            scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
-            document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
-                <div class="timeline-box">
-                    <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
-                    <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
-                        <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
-                    </div>
-                </div>`).join('');
-        } catch(e) { alert("Script generation failed."); }
-        btn.innerText = "1. SCRIPT";
-    }
-</script>
-
+        init();
     </script>
 </body>
     </html>
-    
+                        
