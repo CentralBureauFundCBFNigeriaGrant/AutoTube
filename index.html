@@ -250,7 +250,7 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
                     messages: [
-                        {role: "system", content: "Return ONLY a JSON array. 20 scenes. Mood: Cinematic. Use subscribe nudges at scenes 10 and 20."},
+                        {role: "system", content: "Return ONLY a raw JSON array. No conversational text. 20 scenes. Mood: Cinematic. Use subscribe nudges at scenes 10 and 20."},
                         {role: "user", content: `Script for: "${status.innerText}". FORMAT: [{"v_prompt": "simple visual keyword", "narration": "text"}]`}
                     ]
                 })
