@@ -117,8 +117,11 @@
     </div>
 
     <script>
+        // API KEY
         const GROQ_KEY = "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"; 
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business", "Health", "Motivation"];
+        
+        // APP STATE
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business", "Tech Tips"];
         let curN = niches[0];
         let scenes = [];
         let recorder;
@@ -139,13 +142,13 @@
             speechSynthesis.onvoiceschanged = loadVoices;
         }
 
+        // --- CORE FUNCTIONS ---
         function init() { 
             renderN(); 
             selN(curN); 
             setTimeout(loadVoices, 500); 
         }
 
-        // --- GLOBAL VOICE FUNCTIONS ---
         function pauseVoice() { synth.pause(); }
         function resumeVoice() { synth.resume(); }
         function stopVoice() { synth.cancel(); }
@@ -160,7 +163,7 @@
             
             if (targetVoice) {
                 msg.voice = targetVoice;
-                msg.lang = targetVoice.lang; // Forces the accent
+                msg.lang = targetVoice.lang; 
             }
 
             msg.rate = document.getElementById('rateRange').value;
@@ -181,24 +184,26 @@
             btn.innerText = "2. SYNC VOICE";
         }
 
-        // --- MIC ---
+        // --- MIC/RECORDER ---
         async function handleMic() {
             const btn = document.getElementById('recBtn');
             const dot = document.getElementById('micDot');
             if (!recorder || recorder.state === "inactive") {
-                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                recorder = new MediaRecorder(s);
-                chunks = [];
-                recorder.ondataavailable = (e) => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const b = new Blob(chunks, { type: 'audio/mpeg' });
-                    document.getElementById('vAudio').src = URL.createObjectURL(b);
-                    document.getElementById('vPlayback').classList.remove('hidden');
-                };
-                recorder.start();
-                btn.classList.add('pulse-red', 'border-red-600');
-                dot.classList.replace('bg-gray-600', 'bg-red-600');
-                document.getElementById('recText').innerText = "RECORDING...";
+                try {
+                    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    recorder = new MediaRecorder(s);
+                    chunks = [];
+                    recorder.ondataavailable = (e) => chunks.push(e.data);
+                    recorder.onstop = () => {
+                        const b = new Blob(chunks, { type: 'audio/mpeg' });
+                        document.getElementById('vAudio').src = URL.createObjectURL(b);
+                        document.getElementById('vPlayback').classList.remove('hidden');
+                    };
+                    recorder.start();
+                    btn.classList.add('pulse-red', 'border-red-600');
+                    dot.classList.replace('bg-gray-600', 'bg-red-600');
+                    document.getElementById('recText').innerText = "RECORDING...";
+                } catch(e) { alert("Mic access denied."); }
             } else {
                 recorder.stop();
                 btn.classList.remove('pulse-red', 'border-red-600');
@@ -207,48 +212,83 @@
             }
         }
         function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD DNA"; }
-        function saveV() { alert("Voice DNA Saved!"); document.getElementById('vPlayback').classList.add('hidden'); }
+        function saveV() { alert("Voice DNA Saved Locally!"); document.getElementById('vPlayback').classList.add('hidden'); }
 
-        // --- NICHES ---
-        function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); document.getElementById('nIn').value = ""; } }
-        function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
+        // --- NICHE MANAGEMENT ---
+        function addN() { 
+            const v = document.getElementById('nIn').value.trim(); 
+            if(v){ 
+                niches.push(v); 
+                saveN(); 
+                renderN(); 
+                document.getElementById('nIn').value = ""; 
+            } 
+        }
+        function delN(i, e) { 
+            e.stopPropagation(); 
+            niches.splice(i, 1); 
+            saveN(); 
+            renderN(); 
+        }
         function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
                 <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
-                    <span>${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
+                    <span class="truncate pr-2">${n}</span>
+                    <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 transition-colors">🗑️</span>
                 </div>`).join('');
         }
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
 
-        // --- GROQ ENGINE ---
+        // --- GROQ API ENGINE ---
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
-            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Fetching viral ideas...</p>";
+            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Consulting the AI Brain...</p>";
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 viral short titles for ${curN}. JSON: ["T1", "T2"]`}]})
+                    method: "POST", 
+                    headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant", 
+                        messages: [{role: "user", content: `Give me 5 viral short titles for ${curN}. Return only JSON array like ["Title 1", "Title 2"]`}]
+                    })
                 });
+
+                if(!r.ok) {
+                    const err = await r.json();
+                    throw new Error(err.error.message || "API Error");
+                }
+
                 const d = await r.json();
-                let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
-                const t = JSON.parse(txt);
+                let txt = d.choices[0].message.content;
+                const jsonMatch = txt.match(/\[.*\]/s);
+                const t = JSON.parse(jsonMatch ? jsonMatch[0] : txt);
+                
                 g.innerHTML = t.map(x => `
-                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
+                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all border-l-2 border-transparent">
                         <h3 class="font-bold text-sm">${x}</h3>
-                        <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
+                        <p class="text-[9px] text-red-600 mt-3 font-black uppercase tracking-widest">Start Production →</p>
                     </div>`).join('');
-            } catch(e) { g.innerHTML = "<p class='p-5 text-red-600'>API Error. Refresh and try again.</p>"; }
+            } catch(e) { 
+                g.innerHTML = `<p class='p-10 text-red-500 text-center col-span-2 text-xs'>Error: ${e.message}.<br>Refresh or check your key.</p>`; 
+            }
         }
 
-        function openStudio(t) { document.getElementById('studioRoom').classList.remove('hidden'); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function openStudio(t) { 
+            document.getElementById('studioRoom').classList.remove('hidden'); 
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); 
+        }
 
         async function genScript() {
-            const btn = document.getElementById('sBtn'); btn.innerText = "...";
+            const btn = document.getElementById('sBtn'); btn.innerText = "WRITING...";
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `4 scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
+                    method: "POST", 
+                    headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant", 
+                        messages: [{role: "user", content: `Write 4 scenes for ${curN}. Format strictly: [S1] text [S2] text [S3] text [S4] text.`}]
+                    })
                 });
                 const d = await r.json();
                 const s = d.choices[0].message.content;
@@ -263,7 +303,7 @@
                             <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
                         </div>
                     </div>`).join('');
-            } catch(e) { alert("Script error."); }
+            } catch(e) { alert("Script Error: " + e.message); }
             btn.innerText = "1. SCRIPT";
         }
 
@@ -271,4 +311,4 @@
     </script>
 </body>
     </html>
-                        
+    
