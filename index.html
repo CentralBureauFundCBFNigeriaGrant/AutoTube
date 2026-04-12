@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Pro Dashboard v2.2</title>
+    <title>AutoTube | Visual Studio v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
         .yt-red { background-color: #f00; }
-        .yt-red-text { color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
         .sidebar-item { border-radius: 8px; transition: 0.2s; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; font-size: 13px; margin-bottom: 4px; }
         .sidebar-item:hover { background-color: #272727; }
         .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
-        .timeline-box { min-width: 280px; background-color: #121212; border: 1px solid #282828; border-radius: 12px; padding: 15px; }
+        .timeline-box { min-width: 320px; background-color: #121212; border: 1px solid #282828; border-radius: 16px; padding: 15px; position: relative; overflow: hidden; }
         .pulse-red { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } }
-        ::-webkit-scrollbar { height: 5px; background: #000; }
+        .visual-frame { width: 100%; height: 160px; background: #000; border-radius: 8px; margin-bottom: 12px; display: flex; items-center; justify-center; overflow: hidden; border: 1px solid #222; }
+        .visual-frame img { width: 100%; height: 100%; object-fit: cover; }
+        ::-webkit-scrollbar { height: 6px; background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
@@ -35,35 +36,17 @@
 
             <div class="card p-5">
                 <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest text-center">Voice Lab</h2>
-                
                 <button id="recBtn" onclick="handleMic()" class="w-full border border-[#333] py-3 rounded-xl text-[11px] font-bold hover:bg-[#272727] flex items-center justify-center gap-2 mb-4">
                     <div id="micDot" class="w-2 h-2 bg-gray-600 rounded-full"></div> 
                     <span id="recText">RECORD DNA</span>
                 </button>
-                
                 <div id="vPlayback" class="hidden mb-4 space-y-2">
                     <audio id="vAudio" controls class="h-8 w-full"></audio>
-                    <div class="flex gap-2">
-                        <button onclick="saveV()" class="flex-1 bg-emerald-700 text-[10px] py-2 rounded-lg font-bold">SAVE</button>
-                        <button onclick="discardV()" class="flex-1 bg-zinc-800 text-[10px] py-2 rounded-lg font-bold">TRASH</button>
-                    </div>
                 </div>
-
                 <div class="space-y-4 pt-2 border-t border-[#282828]">
                     <div class="bg-black p-3 rounded-lg border border-[#282828]">
                         <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Accent / Gender</p>
                         <select id="voiceSelect" class="w-full bg-black text-[11px] text-red-500 border-none outline-none"></select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-black p-2 rounded-lg border border-[#282828]">
-                            <p class="text-[8px] text-gray-500 uppercase mb-1">Speed</p>
-                            <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1" class="w-full accent-red-600">
-                        </div>
-                        <div class="bg-black p-2 rounded-lg border border-[#282828]">
-                            <p class="text-[8px] text-gray-500 uppercase mb-1">Pitch</p>
-                            <input type="range" id="pitchRange" min="0" max="2" step="0.1" value="1" class="w-full accent-red-600">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -82,11 +65,9 @@
             <div class="card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-red-600">
                 <div>
                     <h2 class="text-2xl font-black">Content Engine</h2>
-                    <p class="text-[10px] text-gray-500 uppercase">Active: <span id="activeNText" class="text-red-600 font-bold"></span></p>
+                    <p class="text-[10px] text-gray-500 uppercase">Current: <span id="activeNText" class="text-red-600 font-bold"></span></p>
                 </div>
-                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all shadow-lg">
-                    GENERATE VIRAL IDEAS
-                </button>
+                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all">GENERATE IDEAS</button>
             </div>
 
             <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -94,80 +75,45 @@
             <div id="studioRoom" class="hidden card p-6 border-t-2 border-red-600">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <h2 class="text-[10px] font-black tracking-widest uppercase">Production Studio</h2>
-                    
-                    <div class="flex items-center gap-2 bg-black p-2 rounded-xl border border-[#282828]">
-                        <button onclick="pauseVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
-                        <button onclick="resumeVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-[10px] font-bold">▶ RESUME</button>
-                        <button onclick="stopVoice()" class="p-2 hover:bg-red-900/20 text-red-500 rounded-lg text-[10px] font-bold">⏹ STOP</button>
-                    </div>
-
                     <div class="flex gap-3">
-                        <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-6 py-2 rounded-xl text-[10px] font-black uppercase">1. Script</button>
-                        <button onclick="syncVoice()" id="vBtn" class="yt-red px-6 py-2 rounded-xl text-[10px] font-black uppercase">2. Sync Voice</button>
+                        <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-6 py-2 rounded-xl text-[10px] font-black">1. SCRIPT</button>
+                        <button onclick="syncVoice()" id="vBtn" class="yt-red px-6 py-2 rounded-xl text-[10px] font-black">2. SYNC VOICE</button>
                     </div>
                 </div>
 
-                <div class="flex overflow-x-auto gap-5 pb-6 mb-6" id="timeline"></div>
+                <div class="flex overflow-x-auto gap-6 pb-6 mb-6" id="timeline"></div>
 
                 <div class="bg-black p-4 rounded-xl border border-[#282828]">
-                    <div id="scriptOut" class="text-xs text-gray-400 font-mono h-32 overflow-y-auto leading-relaxed italic"></div>
+                    <div id="scriptOut" class="text-xs text-gray-500 font-mono h-24 overflow-y-auto leading-relaxed italic"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // API KEY
         const GROQ_KEY = "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"; 
-        
-        // APP STATE
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business", "Tech Tips"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "AI Business"];
         let curN = niches[0];
         let scenes = [];
-        let recorder;
-        let chunks = [];
         const synth = window.speechSynthesis;
+
+        function init() { renderN(); selN(curN); setTimeout(loadVoices, 500); }
 
         // --- VOICE ENGINE ---
         function loadVoices() {
             const select = document.getElementById('voiceSelect');
             const voices = synth.getVoices();
-            if (voices.length === 0) return;
             select.innerHTML = voices
                 .sort((a, b) => a.lang.localeCompare(b.lang))
-                .map(v => `<option value="${v.name}" data-lang="${v.lang}">[${v.lang.toUpperCase()}] ${v.name}</option>`).join('');
+                .map(v => `<option value="${v.name}">[${v.lang}] ${v.name}</option>`).join('');
         }
-        
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = loadVoices;
-        }
-
-        // --- CORE FUNCTIONS ---
-        function init() { 
-            renderN(); 
-            selN(curN); 
-            setTimeout(loadVoices, 500); 
-        }
-
-        function pauseVoice() { synth.pause(); }
-        function resumeVoice() { synth.resume(); }
-        function stopVoice() { synth.cancel(); }
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = loadVoices; }
 
         function speakLine(index) {
             synth.cancel();
-            const textToSpeak = scenes[index].trim();
-            const msg = new SpeechSynthesisUtterance(textToSpeak);
-            const select = document.getElementById('voiceSelect');
+            const msg = new SpeechSynthesisUtterance(scenes[index]);
             const voices = synth.getVoices();
-            const targetVoice = voices.find(v => v.name === select.value);
-            
-            if (targetVoice) {
-                msg.voice = targetVoice;
-                msg.lang = targetVoice.lang; 
-            }
-
-            msg.rate = document.getElementById('rateRange').value;
-            msg.pitch = document.getElementById('pitchRange').value;
+            msg.voice = voices.find(v => v.name === document.getElementById('voiceSelect').value);
             synth.speak(msg);
         }
 
@@ -175,103 +121,67 @@
             const btn = document.getElementById('vBtn'); btn.innerText = "SYNCING...";
             for(let i=0; i<scenes.length; i++) {
                 speakLine(i);
-                await new Promise(r => {
-                    const check = setInterval(() => {
-                        if(!synth.speaking) { clearInterval(check); r(); }
-                    }, 300);
-                });
+                await new Promise(r => { const c = setInterval(() => { if(!synth.speaking){clearInterval(c); r();} }, 500); });
             }
             btn.innerText = "2. SYNC VOICE";
         }
 
-        // --- MIC/RECORDER ---
-        async function handleMic() {
-            const btn = document.getElementById('recBtn');
-            const dot = document.getElementById('micDot');
-            if (!recorder || recorder.state === "inactive") {
-                try {
-                    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    recorder = new MediaRecorder(s);
-                    chunks = [];
-                    recorder.ondataavailable = (e) => chunks.push(e.data);
-                    recorder.onstop = () => {
-                        const b = new Blob(chunks, { type: 'audio/mpeg' });
-                        document.getElementById('vAudio').src = URL.createObjectURL(b);
-                        document.getElementById('vPlayback').classList.remove('hidden');
-                    };
-                    recorder.start();
-                    btn.classList.add('pulse-red', 'border-red-600');
-                    dot.classList.replace('bg-gray-600', 'bg-red-600');
-                    document.getElementById('recText').innerText = "RECORDING...";
-                } catch(e) { alert("Mic access denied."); }
-            } else {
-                recorder.stop();
-                btn.classList.remove('pulse-red', 'border-red-600');
-                dot.classList.replace('bg-red-600', 'bg-emerald-500');
-                document.getElementById('recText').innerText = "CAPTURED";
-            }
-        }
-        function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD DNA"; }
-        function saveV() { alert("Voice DNA Saved Locally!"); document.getElementById('vPlayback').classList.add('hidden'); }
+        // --- POLLINATIONS VISUAL ENGINE ---
+        async function genVisual(index, promptText) {
+            const imgElement = document.getElementById(`img-${index}`);
+            const btn = document.getElementById(`vbtn-${index}`);
+            
+            btn.innerText = "GENERATING...";
+            imgElement.parentElement.classList.add('animate-pulse');
 
-        // --- NICHE MANAGEMENT ---
-        function addN() { 
-            const v = document.getElementById('nIn').value.trim(); 
-            if(v){ 
-                niches.push(v); 
-                saveN(); 
-                renderN(); 
-                document.getElementById('nIn').value = ""; 
-            } 
+            // Optimizing prompt for "Premium Realistic" look
+            const fullPrompt = encodeURIComponent(`Cinematic, hyper-realistic, 8k, detailed lighting, epic atmosphere: ${promptText}`);
+            const randomSeed = Math.floor(Math.random() * 99999);
+            const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?width=1280&height=720&nologo=true&seed=${randomSeed}`;
+
+            // Preload image to ensure smooth transition
+            const img = new Image();
+            img.src = imageUrl;
+            img.onload = () => {
+                imgElement.src = imageUrl;
+                imgElement.parentElement.classList.remove('animate-pulse');
+                btn.innerText = "REFRESH VISUAL";
+            };
         }
-        function delN(i, e) { 
-            e.stopPropagation(); 
-            niches.splice(i, 1); 
-            saveN(); 
-            renderN(); 
-        }
+
+        // --- CORE LOGIC ---
+        function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); saveN(); renderN(); document.getElementById('nIn').value=""; } }
+        function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
         function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
                 <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
-                    <span class="truncate pr-2">${n}</span>
-                    <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 transition-colors">🗑️</span>
+                    <span class="truncate">${n}</span>
+                    <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
                 </div>`).join('');
         }
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
 
-        // --- GROQ API ENGINE ---
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
-            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Consulting the AI Brain...</p>";
+            g.innerHTML = "<p class='col-span-2 text-center text-xs italic animate-pulse'>Generating viral concepts...</p>";
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST", 
                     headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Give me 5 viral short titles for ${curN}. Return only JSON array like ["Title 1", "Title 2"]`}]
+                        messages: [{role: "user", content: `5 viral short titles for ${curN}. Return JSON array only: ["Title 1", "Title 2"]`}]
                     })
                 });
-
-                if(!r.ok) {
-                    const err = await r.json();
-                    throw new Error(err.error.message || "API Error");
-                }
-
                 const d = await r.json();
-                let txt = d.choices[0].message.content;
-                const jsonMatch = txt.match(/\[.*\]/s);
-                const t = JSON.parse(jsonMatch ? jsonMatch[0] : txt);
-                
+                const t = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
                 g.innerHTML = t.map(x => `
-                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all border-l-2 border-transparent">
+                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer border-l-2 border-transparent">
                         <h3 class="font-bold text-sm">${x}</h3>
-                        <p class="text-[9px] text-red-600 mt-3 font-black uppercase tracking-widest">Start Production →</p>
+                        <p class="text-[9px] text-red-600 mt-2 font-black uppercase">Start Production →</p>
                     </div>`).join('');
-            } catch(e) { 
-                g.innerHTML = `<p class='p-10 text-red-500 text-center col-span-2 text-xs'>Error: ${e.message}.<br>Refresh or check your key.</p>`; 
-            }
+            } catch(e) { g.innerHTML = "<p class='text-red-500 text-center col-span-2'>API Error.</p>"; }
         }
 
         function openStudio(t) { 
@@ -287,28 +197,33 @@
                     headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Write 4 scenes for ${curN}. Format strictly: [S1] text [S2] text [S3] text [S4] text.`}]
+                        messages: [{role: "user", content: `Write 4 cinematic scenes for a video about ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]
                     })
                 });
                 const d = await r.json();
                 const s = d.choices[0].message.content;
                 document.getElementById('scriptOut').innerText = s;
                 scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
+                
                 document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
                     <div class="timeline-box">
-                        <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
-                        <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
-                        <div class="flex gap-2 mt-4">
-                            <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
-                            <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
+                        <div class="visual-frame">
+                            <img id="img-${i}" src="https://via.placeholder.com/1280x720/111/333?text=NO+VISUAL" alt="scene">
+                        </div>
+                        <p class="text-[9px] text-gray-500 font-black mb-1">SCENE ${i+1}</p>
+                        <p class="text-[11px] text-white line-clamp-2 h-8 italic mb-4">"${x.trim()}"</p>
+                        <div class="flex flex-col gap-2">
+                            <button id="vbtn-${i}" onclick="genVisual(${i}, '${x.trim().replace(/'/g, "")}')" class="w-full bg-emerald-600/20 text-emerald-500 border border-emerald-600/30 py-2 rounded-lg text-[9px] font-black uppercase">Generate Visual</button>
+                            <div class="flex gap-2">
+                                <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[9px] font-bold">PLAY AUDIO</button>
+                            </div>
                         </div>
                     </div>`).join('');
-            } catch(e) { alert("Script Error: " + e.message); }
+            } catch(e) { alert("Script Error"); }
             btn.innerText = "1. SCRIPT";
         }
 
         init();
     </script>
 </body>
-    </html>
-    
+</html>
