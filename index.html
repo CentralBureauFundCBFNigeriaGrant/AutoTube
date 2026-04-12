@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoTube | v6.7 Fixed</title>
+    <title>AutoTube | v6.8 Export Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Oswald:wght@700&display=swap');
@@ -29,11 +29,11 @@
             <div class="w-10 h-7 yt-red rounded flex items-center justify-center">
                 <div class="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v6.7</span></h1>
+            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v6.8 EXPORT</span></h1>
         </div>
         <div class="flex gap-2">
-            <button onclick="saveCurrentProject()" class="text-[8px] font-black uppercase bg-[#111] border border-[#333] px-3 py-2 rounded">Save</button>
-            <button onclick="loadLastProject()" class="text-[8px] font-black uppercase bg-[#111] border border-[#333] px-3 py-2 rounded">Load</button>
+            <button onclick="saveCurrentProject()" class="text-[8px] font-black uppercase bg-[#111] border border-[#333] px-3 py-2 rounded">Save Project</button>
+            <button onclick="loadLastProject()" class="text-[8px] font-black uppercase bg-[#111] border border-[#333] px-3 py-2 rounded">Load Last</button>
         </div>
     </div>
 
@@ -41,7 +41,7 @@
         
         <div class="w-full lg:w-1/3 space-y-4">
             <div class="card p-4 border-t-2 border-red-600">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-3 tracking-widest">1. Production Focus</h2>
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-3 tracking-widest">1. Atmosphere</h2>
                 <select id="moodSelect" class="w-full bg-black border border-[#333] p-3 rounded mb-4 text-xs font-bold text-red-500 outline-none">
                     <option value="Epic">EPIC CINEMATIC</option>
                     <option value="Suspense">DARK SUSPENSE</option>
@@ -51,7 +51,7 @@
                 <h2 class="text-[10px] font-black text-gray-500 uppercase mb-2">2. My Niches</h2>
                 <div id="nicheList" class="max-h-32 overflow-y-auto mb-3 space-y-1"></div>
                 <div class="flex gap-2 mb-3">
-                    <input id="nIn" type="text" placeholder="New niche..." class="flex-1 bg-black border border-[#333] rounded p-2 text-xs outline-none focus:border-red-600">
+                    <input id="nIn" type="text" placeholder="Add niche..." class="flex-1 bg-black border border-[#333] rounded p-2 text-xs outline-none">
                     <button onclick="addNewNiche()" class="bg-[#272727] px-4 rounded text-white font-bold">+</button>
                 </div>
                 <button onclick="genIdeas()" class="w-full yt-red py-3 rounded-lg font-black text-xs uppercase shadow-lg">Brainstorm</button>
@@ -59,14 +59,14 @@
             </div>
 
             <div id="editorPanel" class="card p-4 border-l-2 border-emerald-600 hidden">
-                <h2 class="text-[10px] font-black text-emerald-500 uppercase mb-2">Visual Swap</h2>
+                <h2 class="text-[10px] font-black text-emerald-500 uppercase mb-2">Visual Fix</h2>
                 <input id="editPrompt" type="text" placeholder="New keyword..." class="w-full bg-black border border-[#222] p-2 text-xs rounded outline-none mb-2">
                 <button onclick="manualFixScene()" class="w-full bg-emerald-600 py-2 rounded font-black text-[9px] uppercase">Fix Scene</button>
             </div>
 
             <div class="card p-4">
                 <input id="groqKeyIn" type="password" class="w-full mb-2 bg-black border border-[#222] text-[10px] p-2 rounded outline-none" onchange="saveKeys()" placeholder="Groq API Key">
-                <input id="pexelsKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-2 rounded outline-none" onchange="saveKeys()" placeholder="Pexels API Key">
+                <input id="pexelsKeyIn" type="password" class="w-full mb-2 bg-black border border-[#222] text-[10px] p-2 rounded outline-none" onchange="saveKeys()" placeholder="Pexels API Key">
             </div>
         </div>
 
@@ -74,10 +74,10 @@
             <div class="card p-4 md:p-6 border-b-2 border-red-600">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-black uppercase truncate text-red-500" id="autoStatus">READY</h2>
-                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase shadow-lg">Launch Movie</button>
+                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase">Launch Production</button>
                 </div>
 
-                <div class="player-stage mb-4">
+                <div class="player-stage mb-4" id="exportArea">
                     <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-center text-gray-700 font-bold text-[9px] uppercase px-4">Studio Live</div>
                     <div class="subtitle-overlay"><div id="subtitleText"></div></div>
                     <div class="absolute top-2 right-2">
@@ -98,9 +98,9 @@
                     <div class="space-y-2">
                         <select id="voiceSelect" class="w-full bg-black border border-[#222] text-[10px] text-red-500 font-bold p-3 rounded outline-none uppercase"></select>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="speakActive()" class="control-btn bg-white text-black">▶ PREVIEW</button>
+                            <button onclick="playFullSequence()" class="control-btn bg-white text-black">▶ PREVIEW</button>
                             <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white">⏸ PAUSE</button>
-                            <button onclick="playFullSequence()" class="col-span-2 control-btn bg-red-600 text-white py-4 shadow-xl">🎬 START BROADCAST</button>
+                            <button onclick="startExport()" class="col-span-2 control-btn bg-red-600 text-white py-4 shadow-xl">🎬 EXPORT VIDEO (MP4)</button>
                         </div>
                     </div>
                 </div>
@@ -108,13 +108,15 @@
         </div>
     </div>
     <audio id="bgAtmosphere" loop></audio>
-</body>
-<script>
+    </body>
+    <script>
     let niches = ["African Folk Tales", "Bible History", "Modern AI Tech", "Success Psychology"];
     let curN = niches[0];
     let scenes = []; 
     let currentIdx = 0;
     const synth = window.speechSynthesis;
+    let mediaRecorder;
+    let recordedChunks = [];
 
     const audioLibrary = {
         "Epic": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
@@ -149,7 +151,7 @@
 
     function loadLastProject() {
         const saved = localStorage.getItem('autoTube_lastProject');
-        if(!saved) return alert("No saved data.");
+        if(!saved) return alert("No history.");
         const p = JSON.parse(saved);
         scenes = p.scenes; curN = p.niche;
         document.getElementById('autoStatus').innerText = p.title;
@@ -194,15 +196,11 @@
         curN = niches[0]; renderNicheUI();
     }
 
-    // --- HARDENED PARSER ---
     function parseCleanJson(rawText) {
         try {
             let start = rawText.indexOf('[');
             let end = rawText.lastIndexOf(']');
-            if (start !== -1 && end !== -1) {
-                let clean = rawText.substring(start, end + 1);
-                return JSON.parse(clean);
-            }
+            if (start !== -1 && end !== -1) return JSON.parse(rawText.substring(start, end + 1));
             return JSON.parse(rawText);
         } catch (e) { return null; }
     }
@@ -217,7 +215,7 @@
                 method: "POST", headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
-                    messages: [{role: "system", content: "JSON array only."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
+                    messages: [{role: "system", content: "JSON only."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
                 })
             });
             const d = await r.json();
@@ -250,46 +248,34 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
                     messages: [
-                        {role: "system", content: "Return ONLY a raw JSON array. No conversational text. 20 scenes. Mood: Cinematic. Use subscribe nudges at scenes 10 and 20."},
-                        {role: "user", content: `Script for: "${status.innerText}". FORMAT: [{"v_prompt": "simple visual keyword", "narration": "text"}]`}
+                        {role: "system", content: "Return ONLY a raw JSON array, no conversational text. 20 scenes. Mood: Cinematic. Sub nudges at 10 & 20."},
+                        {role: "user", content: `Script for: "${status.innerText}". FORMAT: [{"v_prompt": "clear visual keyword", "narration": "text"}]`}
                     ]
                 })
             });
             const d = await r.json();
-            const raw = d.choices[0].message.content;
-            scenes = parseCleanJson(raw);
-            if(!scenes || !Array.isArray(scenes)) throw new Error("Invalid Format");
+            scenes = parseCleanJson(d.choices[0].message.content);
+            if(!scenes) throw new Error();
             
-            currentIdx = 0;
-            renderSceneBar();
+            currentIdx = 0; renderSceneBar();
             for(let i=0; i<scenes.length; i++) {
-                status.innerText = `FILMING ${i+1}/20...`;
+                status.innerText = `READY ${i+1}/20...`;
                 await fetchMedia(i, pKey);
                 renderSceneBar();
                 if(currentIdx === i) updatePlayer();
             }
             btn.innerText = "DONE";
-        } catch(e) { btn.innerText = "RETRY"; alert("AI Error: Formatting. Click Launch again."); }
+        } catch(e) { btn.innerText = "RETRY"; }
     }
 
     async function fetchMedia(i, pKey) {
         try {
-            const query = encodeURIComponent(scenes[i].v_prompt);
-            const res = await fetch(`https://api.pexels.com/videos/search?query=${query}&per_page=1`, { headers: { Authorization: pKey } });
+            const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, { headers: { Authorization: pKey } });
             const p = await res.json();
             scenes[i].mUrl = p.videos?.[0]?.video_files?.[0]?.link;
             scenes[i].mType = scenes[i].mUrl ? 'video' : 'image';
-            if(!scenes[i].mUrl) scenes[i].mUrl = `https://image.pollinations.ai/prompt/${query}?width=1280&height=720&nologo=true`;
+            if(!scenes[i].mUrl) scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
         } catch (e) { scenes[i].mType = 'image'; scenes[i].mUrl = `https://image.pollinations.ai/prompt/scenery?width=1280&height=720`; }
-    }
-
-    async function manualFixScene() {
-        const prompt = document.getElementById('editPrompt').value.trim();
-        const pKey = document.getElementById('pexelsKeyIn').value;
-        if(!prompt || !pKey) return alert("Missing keyword!");
-        scenes[currentIdx].v_prompt = prompt;
-        await fetchMedia(currentIdx, pKey);
-        updatePlayer(); renderSceneBar();
     }
 
     function updatePlayer() {
@@ -312,22 +298,53 @@
         m.voice = synth.getVoices().find(v => v.name === document.getElementById('voiceSelect').value);
         m.rate = document.getElementById('vRate').value;
         m.onstart = () => { document.getElementById('subtitleText').style.display = 'inline-block'; };
-        synth.speak(m);
+        return new Promise(resolve => {
+            m.onend = resolve;
+            synth.speak(m);
+        });
     }
-    
-    function pauseSpeech() { synth.pause(); document.getElementById('bgAtmosphere').pause(); }
-    
+
+    function pauseSpeech() { synth.cancel(); document.getElementById('bgAtmosphere').pause(); }
+
     async function playFullSequence() {
         const bg = document.getElementById('bgAtmosphere');
         bg.src = audioLibrary[document.getElementById('moodSelect').value];
         bg.volume = document.getElementById('bgVol').value;
-        bg.play().catch(() => {});
+        bg.play();
 
         for(let i=0; i < scenes.length; i++) {
-            currentIdx = i; updatePlayer(); renderSceneBar(); speakActive();
-            await new Promise(r => { const c = setInterval(() => { if(!synth.speaking){ clearInterval(c); r(); } }, 300); });
+            currentIdx = i; updatePlayer(); renderSceneBar();
+            await speakActive();
         }
         bg.pause();
     }
+
+    // --- NEW: EXPORT ENGINE ---
+    async function startExport() {
+        if(!scenes.length) return alert("Generate video first!");
+        alert("This will start a screen recording of your player. Please select 'This Tab' to capture the video perfectly.");
+        
+        try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            recordedChunks = [];
+            
+            mediaRecorder.ondataavailable = e => { if(e.data.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'autotube_video.mp4';
+                a.click();
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            await playFullSequence();
+            mediaRecorder.stop();
+            alert("Export Complete! Check your downloads.");
+        } catch(e) { alert("Recording cancelled."); }
+    }
 </script>
 </html>
+
