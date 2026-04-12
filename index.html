@@ -3,117 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Elite Studio v4.1</title>
+    <title>AutoTube | Ironclad v4.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
         .yt-red { background-color: #f00; }
-        .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; height: 100%; }
-        .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
+        .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
         .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 16px; overflow: hidden; border: 1px solid #333; position: relative; }
         video, img { width: 100%; height: 100%; object-fit: cover; }
-        .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 10px; cursor: pointer; }
+        .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .control-btn:hover { background: #222; border-color: #f00; }
-        input[type=range] { accent-color: #f00; }
-        .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 8px; font-size: 11px; margin-bottom: 2px; }
+        input[type=range] { accent-color: #f00; cursor: pointer; }
+        .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 10px; font-size: 12px; margin-bottom: 4px; border: 1px solid transparent; }
+        .active-niche { background-color: #272727; border-color: #f00; color: #f00; font-weight: bold; }
+        .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
-<body class="p-4 md:p-8" onload="init()">
+<body class="p-4 md:p-6" onload="init()">
 
-    <div class="max-w-7xl mx-auto mb-6 flex items-center gap-3">
-        <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-lg shadow-red-900/40">
-            <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
+    <div class="max-w-7xl mx-auto mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-xl shadow-red-900/30">
+                <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
+            </div>
+            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">PRO 4.2</span></h1>
         </div>
-        <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-xs font-normal not-italic text-gray-500">v4.1 Elite</span></h1>
     </div>
 
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-4 space-y-6">
-            <div class="card p-6 border-t-2 border-red-600">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Niche Command Center</h2>
-                
-                <div id="nicheList" class="max-h-40 overflow-y-auto mb-4 bg-black/50 p-2 rounded-lg"></div>
-                
+            <div class="card p-6 border-t-4 border-red-600">
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Choose Your Niche</h2>
+                <div id="nicheList" class="max-h-48 overflow-y-auto mb-4 space-y-1"></div>
                 <div class="flex gap-2 mb-6">
-                    <input id="nIn" type="text" placeholder="New Niche..." class="flex-1 bg-black border border-[#333] rounded-lg p-2 text-xs outline-none focus:border-red-600">
-                    <button onclick="addN()" class="bg-[#272727] px-4 rounded-lg text-white font-bold">+</button>
+                    <input id="nIn" type="text" placeholder="Add custom niche..." class="flex-1 bg-black border border-[#333] rounded-lg p-3 text-xs outline-none focus:border-red-600">
+                    <button onclick="addN()" class="bg-[#272727] px-5 rounded-lg text-white font-bold hover:bg-red-600 transition-colors">+</button>
                 </div>
-
-                <button onclick="genIdeas()" class="w-full yt-red py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition-transform shadow-lg shadow-red-900/20">
-                    BRAINSTORM VIRAL IDEAS
+                <button onclick="genIdeas()" class="w-full yt-red py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-lg shadow-red-900/20">
+                    Brainstorm Viral Topics
                 </button>
-                
                 <div id="ideasGrid" class="mt-4 space-y-2"></div>
             </div>
 
             <div class="card p-6">
                 <h2 class="text-[10px] font-black text-gray-600 uppercase mb-4 tracking-widest">Master API Keys</h2>
-                <div class="space-y-2">
-                    <input id="groqKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-2 rounded outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Groq API Key">
-                    <input id="pexelsKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-2 rounded outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Pexels API Key">
+                <div class="space-y-3">
+                    <input id="groqKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-3 rounded-lg outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Paste Groq Key (gsk_...)">
+                    <input id="pexelsKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-3 rounded-lg outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Paste Pexels Key">
                 </div>
             </div>
         </div>
 
         <div class="lg:col-span-8 space-y-6">
-            <div id="studioRoom" class="hidden card p-8 border-b-4 border-red-600">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h2 class="text-xl font-black italic">PRODUCTION STUDIO</h2>
-                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-colors">
+            <div class="card p-8 border-b-4 border-red-600 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 relative z-10">
+                    <div>
+                        <h2 class="text-xl font-black italic tracking-tighter">STUDIO TERMINAL</h2>
+                        <p class="text-[10px] text-gray-500 uppercase mt-1">Status: <span id="autoStatus" class="text-red-500">System Ready</span></p>
+                    </div>
+                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/20">
                         Launch Auto-Generation
                     </button>
                 </div>
 
-                <div class="player-stage group shadow-2xl">
-                    <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-xs uppercase bg-black">
-                        System Ready... Click Launch
-                    </div>
-                    
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="prevScene()" class="bg-black/60 p-4 rounded-full border border-white/10 hover:bg-red-600">←</button>
-                    </div>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="nextScene()" class="bg-black/60 p-4 rounded-full border border-white/10 hover:bg-red-600">→</button>
-                    </div>
-
-                    <div class="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                        <span id="sceneIndicator" class="bg-black/80 px-4 py-1 rounded-full text-[9px] font-bold text-red-600 border border-white/10">Scene 0/0</span>
-                        <div id="autoStatus" class="text-[8px] font-black uppercase bg-gray-900 px-3 py-1 rounded border border-white/5">Idle</div>
-                    </div>
-                </div>
-
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6">
-                    <div class="md:col-span-8 space-y-4">
-                        <div class="bg-black p-5 rounded-xl border border-[#282828]">
-                            <p class="text-[9px] text-gray-500 font-bold mb-2 uppercase tracking-tighter">Narration</p>
-                            <div id="currentSceneText" class="text-sm italic leading-relaxed text-white">---</div>
-                        </div>
-                        <div class="bg-black/30 p-4 rounded-xl border border-[#1a1a1a]">
-                            <p class="text-[8px] text-gray-600 font-bold uppercase">Visual Search Prompt</p>
-                            <div id="currentVisualPrompt" class="text-[10px] text-emerald-600 font-mono truncate">---</div>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-4 flex flex-col gap-3">
-                        <div class="bg-black p-4 rounded-xl border border-[#282828] space-y-3">
-                            <select id="voiceSelect" class="w-full bg-black text-[10px] text-red-500 border-none outline-none font-bold"></select>
-                            
-                            <div>
-                                <label class="text-[8px] text-gray-500 uppercase block mb-1">Speed (Rate)</label>
-                                <input type="range" id="vRate" min="0.5" max="2" step="0.1" value="0.9" class="w-full h-1">
-                            </div>
-                            <div>
-                                <label class="text-[8px] text-gray-500 uppercase block mb-1">Pitch</label>
-                                <input type="range" id="vPitch" min="0" max="2" step="0.1" value="1" class="w-full h-1">
-                            </div>
+                <div id="studioArea" class="space-y-6 opacity-40 grayscale pointer-events-none transition-all duration-700">
+                    <div class="player-stage group shadow-2xl">
+                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-[10px] uppercase bg-black text-center px-10">
+                            No Production Active.<br>Pick a topic and click "Launch".
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="speakActive()" class="control-btn bg-white text-black">Play</button>
-                            <button onclick="pauseSpeech()" class="control-btn text-white">Pause</button>
-                            <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-[#222] text-red-600 border-red-900/50">Play Full Sequence</button>
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="prevScene()" class="bg-black/80 p-4 rounded-full border border-white/10 hover:bg-red-600">←</button>
+                        </div>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="nextScene()" class="bg-black/80 p-4 rounded-full border border-white/10 hover:bg-red-600">→</button>
+                        </div>
+
+                        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                            <span id="sceneIndicator" class="bg-black/90 px-4 py-1.5 rounded-full text-[9px] font-bold text-red-600 border border-white/10">Scene 0/0</span>
+                            <div class="bg-black/90 px-3 py-1 rounded text-[8px] font-black text-gray-500 border border-white/5 uppercase">AutoTube AI Processing</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <div class="md:col-span-8 bg-black p-6 rounded-2xl border border-[#222] shadow-inner">
+                            <p class="text-[9px] text-gray-500 font-black mb-3 uppercase tracking-widest">Active Narration</p>
+                            <div id="currentSceneText" class="text-base italic leading-relaxed text-gray-300 min-h-[60px]">Select a viral topic to begin...</div>
+                            <div class="mt-4 pt-4 border-t border-white/5">
+                                <p class="text-[8px] text-gray-700 font-bold uppercase mb-1">Visual Direction</p>
+                                <div id="currentVisualPrompt" class="text-[9px] text-emerald-700 font-mono italic">Searching for cinematic motion...</div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-4 flex flex-col gap-4">
+                            <div class="bg-black p-5 rounded-2xl border border-[#222] space-y-4">
+                                <select id="voiceSelect" class="w-full bg-transparent text-[11px] text-red-500 border-none outline-none font-bold"></select>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between text-[8px] text-gray-500 uppercase mb-1"><span>Speed</span><span id="vRateVal">0.9x</span></div>
+                                        <input type="range" id="vRate" min="0.5" max="1.5" step="0.1" value="0.9" class="w-full" oninput="document.getElementById('vRateVal').innerText=this.value+'x'">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-[8px] text-gray-500 uppercase mb-1"><span>Pitch</span><span id="vPitchVal">1.0</span></div>
+                                        <input type="range" id="vPitch" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full" oninput="document.getElementById('vPitchVal').innerText=this.value">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="speakActive()" class="control-btn bg-white text-black text-[9px]">▶ PLAY</button>
+                                <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white text-[9px]">⏸ PAUSE</button>
+                                <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-red-600/10 text-red-600 border-red-900/30 text-[10px]">Play Full Sequential Sequence</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,7 +126,7 @@
     </div>
 
     <script>
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Luxury Lifestyle"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Luxury Lifestyle", "Wealth Mindset"];
         let curN = niches[0];
         let scenes = []; 
         let currentIdx = 0;
@@ -142,64 +146,99 @@
         function loadVoices() {
             const vS = document.getElementById('voiceSelect');
             const voices = synth.getVoices();
+            if(!voices.length) { setTimeout(loadVoices, 300); return; }
             vS.innerHTML = voices
                 .sort((a,b) => a.lang.localeCompare(b.lang))
                 .map(v => `<option value="${v.name}">${v.name.includes('Google') ? '⭐ ' : ''}[${v.lang}] ${v.name}</option>`).join('');
         }
 
+        async function genIdeas() {
+            const g = document.getElementById('ideasGrid');
+            const key = document.getElementById('groqKeyIn').value;
+            if(!key) return alert("Please add your Groq Key first!");
+            
+            g.innerHTML = "<div class='text-center py-6'><div class='animate-spin inline-block w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full'></div></div>";
+            
+            try {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST", 
+                    headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant", 
+                        messages: [{role: "user", content: `Give me 5 viral, short YouTube video titles for the niche: ${curN}. Return only a clean JSON array of strings like ["Title 1", "Title 2"]. No other text.`}]
+                    })
+                });
+                const d = await r.json();
+                const content = d.choices[0].message.content.match(/\[.*\]/s)[0];
+                const titles = JSON.parse(content);
+                
+                // Fix the [object Object] bug by explicitly treating titles as strings
+                g.innerHTML = titles.map(t => `
+                    <div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="bg-black/50 border border-[#222] p-4 rounded-xl text-xs cursor-pointer hover:border-red-600 hover:bg-red-600/5 transition-all flex justify-between items-center group">
+                        <span class="font-bold text-gray-300 group-hover:text-white">${t}</span>
+                        <span class="text-red-600 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity">SELECT →</span>
+                    </div>`).join('');
+            } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px] bg-red-900/10 p-4 rounded border border-red-900/20'>Error: AI response busy. Try again.</p>"; }
+        }
+
+        function prepStudio(title) {
+            document.getElementById('studioArea').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
+            document.getElementById('autoStatus').innerText = `Targeting: ${title}`;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
         async function genFullProduction() {
             const btn = document.getElementById('prodBtn');
             const status = document.getElementById('autoStatus');
-            btn.innerText = "WRITING SCRIPT...";
-            status.innerText = "BRAINSTORMING";
+            btn.innerText = "🎬 FILMING...";
+            btn.classList.add('loading-pulse');
+            status.innerText = "WRITING CINEMATIC SCRIPT...";
             
             const gKey = document.getElementById('groqKeyIn').value;
+            const pKey = document.getElementById('pexelsKeyIn').value;
+
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST", 
                     headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Generate a 6-scene YouTube script for ${curN}. 
-                        IMPORTANT: 
-                        - In Scene 3, include a brief narration nudge: "Before we continue, make sure to subscribe for more!"
-                        - In the Final Scene, end with: "Like and subscribe to stay updated!"
-                        Return ONLY a valid JSON array. Each object: 'v_prompt' (visuals) and 'narration' (speech).`}]
+                        messages: [{role: "user", content: `Create a 6-scene script for a video titled "${document.getElementById('autoStatus').innerText}". 
+                        Scene 3 must nudge viewers to "Subscribe for more daily inspiration". 
+                        Scene 6 must end with "Like and subscribe to join our community".
+                        Format: JSON array of objects with 'v_prompt' (10-word visual description) and 'narration' (the script text).`}]
                     })
                 });
                 const d = await r.json();
                 scenes = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
                 
                 currentIdx = 0;
-                btn.innerText = "FILMING...";
-                status.innerText = "GENERATING VISUALS";
-                
                 updatePlayer();
-                
-                // Fast background generation
-                const pKey = document.getElementById('pexelsKeyIn').value;
-                const genPromises = scenes.map(async (scene, i) => {
+
+                // Sequential fast generation
+                for(let i=0; i<scenes.length; i++) {
+                    status.innerText = `GENERATING MOTION FOR SCENE ${i+1}...`;
                     try {
-                        const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scene.v_prompt)}&per_page=1`, {
+                        const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, {
                             headers: { Authorization: pKey }
                         });
                         const data = await res.json();
                         if (data.videos?.length > 0) {
-                            scene.mType = 'video';
-                            scene.mUrl = data.videos[0].video_files.find(f => f.width >= 1280)?.link || data.videos[0].video_files[0].link;
+                            scenes[i].mType = 'video';
+                            scenes[i].mUrl = data.videos[0].video_files.find(f => f.width >= 1280)?.link || data.videos[0].video_files[0].link;
                         } else { throw new Error(); }
                     } catch (e) {
-                        scene.mType = 'image';
-                        scene.mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('8k cinematic ' + scene.v_prompt)}?width=1280&height=720&nologo=true`;
+                        scenes[i].mType = 'image';
+                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('8k dramatic ' + scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
                     }
                     if(currentIdx === i) updatePlayer();
-                });
+                }
+                
+                btn.innerText = "PRODUCTION COMPLETE";
+                btn.classList.remove('loading-pulse');
+                status.innerText = "READY TO BROADCAST";
 
-                await Promise.all(genPromises);
-                btn.innerText = "READY";
-                status.innerText = "PRODUCTION COMPLETE";
-
-            } catch(e) { alert("Production Error. Check Keys."); btn.innerText = "RETRY"; }
+            } catch(e) { alert("Production Error. Check your Groq key and Topic."); btn.innerText = "RETRY"; }
         }
 
         function updatePlayer() {
@@ -208,12 +247,12 @@
             const box = document.getElementById('mainMediaBox');
             
             document.getElementById('sceneIndicator').innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
-            document.getElementById('currentSceneText').innerText = `"${s.narration}"`;
-            document.getElementById('currentVisualPrompt').innerText = s.v_prompt;
+            document.getElementById('currentSceneText').innerText = s.narration;
+            document.getElementById('currentVisualPrompt').innerText = `SEARCHING: ${s.v_prompt.toUpperCase()}`;
 
             box.innerHTML = '';
             if (!s.mUrl) {
-                box.innerHTML = `<div class="animate-pulse">Loading Scene ${currentIdx+1}...</div>`;
+                box.innerHTML = `<div class="flex flex-col items-center gap-2"><div class="animate-spin w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full"></div><span class="text-[8px] tracking-widest opacity-50">SYNCING SCENE ${currentIdx+1}</span></div>`;
             } else if (s.mType === 'video') {
                 box.innerHTML = `<video src="${s.mUrl}" autoplay loop muted playsinline></video>`;
             } else {
@@ -236,7 +275,7 @@
 
         async function playFullSequence() {
             const btn = document.getElementById('playAllBtn');
-            btn.innerText = "PLAYING SEQUENTIAL...";
+            btn.innerText = "Broadcasting Sequence 1 to " + scenes.length + "...";
             for(let i=0; i < scenes.length; i++) {
                 currentIdx = i;
                 updatePlayer();
@@ -245,16 +284,16 @@
                     const check = setInterval(() => { if(!synth.speaking){ clearInterval(check); r(); } }, 500);
                 });
             }
-            btn.innerText = "Play Full Sequence";
+            btn.innerText = "Play Full Sequential Sequence";
         }
 
-        // NAVIGATION & UI
+        // NAVIGATION
         function nextScene() { if(currentIdx < scenes.length - 1) { currentIdx++; updatePlayer(); } }
         function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
+        
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
-        function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); saveNiches(); renderN(); document.getElementById('nIn').value=""; } }
-        function saveNiches() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
-        function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveNiches(); renderN(); }
+        function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); document.getElementById('nIn').value=""; } }
+        function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
                 <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
@@ -262,26 +301,7 @@
                     <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
                 </div>`).join('');
         }
-        function openStudio() { document.getElementById('studioRoom').classList.remove('hidden'); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
-        
-        async function genIdeas() {
-            const g = document.getElementById('ideasGrid');
-            const key = document.getElementById('groqKeyIn').value;
-            g.innerHTML = "<div class='text-center py-4'><div class='animate-spin inline-block w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full'></div></div>";
-            try {
-                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", 
-                    headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `5 viral titles for ${curN}. JSON: ["T1", "T2"]`}]
-                    })
-                });
-                const d = await r.json();
-                const t = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
-                g.innerHTML = t.map(x => `<div onclick="openStudio()" class="bg-black/40 border border-[#222] p-3 rounded-lg text-xs cursor-pointer hover:border-red-600 transition-colors">${x}</div>`).join('');
-            } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px]'>Error. Check Key.</p>"; }
-        }
     </script>
 </body>
- </html>
+    </html>
+    
