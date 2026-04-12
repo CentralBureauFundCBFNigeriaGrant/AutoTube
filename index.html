@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoTube | v6.6 Unified</title>
+    <title>AutoTube | v6.7 Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Oswald:wght@700&display=swap');
@@ -29,7 +29,7 @@
             <div class="w-10 h-7 yt-red rounded flex items-center justify-center">
                 <div class="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v6.6</span></h1>
+            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v6.7</span></h1>
         </div>
         <div class="flex gap-2">
             <button onclick="saveCurrentProject()" class="text-[8px] font-black uppercase bg-[#111] border border-[#333] px-3 py-2 rounded">Save</button>
@@ -59,9 +59,9 @@
             </div>
 
             <div id="editorPanel" class="card p-4 border-l-2 border-emerald-600 hidden">
-                <h2 class="text-[10px] font-black text-emerald-500 uppercase mb-2">Scene Visual Fix</h2>
-                <input id="editPrompt" type="text" placeholder="New Pexels keyword..." class="w-full bg-black border border-[#222] p-2 text-xs rounded outline-none mb-2">
-                <button onclick="manualFixScene()" class="w-full bg-emerald-600 py-2 rounded font-black text-[9px] uppercase">Swap Visual</button>
+                <h2 class="text-[10px] font-black text-emerald-500 uppercase mb-2">Visual Swap</h2>
+                <input id="editPrompt" type="text" placeholder="New keyword..." class="w-full bg-black border border-[#222] p-2 text-xs rounded outline-none mb-2">
+                <button onclick="manualFixScene()" class="w-full bg-emerald-600 py-2 rounded font-black text-[9px] uppercase">Fix Scene</button>
             </div>
 
             <div class="card p-4">
@@ -78,7 +78,7 @@
                 </div>
 
                 <div class="player-stage mb-4">
-                    <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-center text-gray-700 font-bold text-[9px] uppercase px-4">Cinema Online</div>
+                    <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-center text-gray-700 font-bold text-[9px] uppercase px-4">Studio Live</div>
                     <div class="subtitle-overlay"><div id="subtitleText"></div></div>
                     <div class="absolute top-2 right-2">
                         <span id="sceneIndicator" class="bg-black/90 px-2 py-1 rounded text-[8px] font-bold text-red-500 border border-white/10 uppercase">0/20</span>
@@ -100,7 +100,7 @@
                         <div class="grid grid-cols-2 gap-2">
                             <button onclick="speakActive()" class="control-btn bg-white text-black">▶ PREVIEW</button>
                             <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white">⏸ PAUSE</button>
-                            <button onclick="playFullSequence()" class="col-span-2 control-btn bg-red-600 text-white py-4 shadow-xl">🎬 BROADCAST 20 SCENES</button>
+                            <button onclick="playFullSequence()" class="col-span-2 control-btn bg-red-600 text-white py-4 shadow-xl">🎬 START BROADCAST</button>
                         </div>
                     </div>
                 </div>
@@ -108,8 +108,8 @@
         </div>
     </div>
     <audio id="bgAtmosphere" loop></audio>
-                    </body>
-            <script>
+</body>
+<script>
     let niches = ["African Folk Tales", "Bible History", "Modern AI Tech", "Success Psychology"];
     let curN = niches[0];
     let scenes = []; 
@@ -125,8 +125,6 @@
     function initApp() {
         document.getElementById('groqKeyIn').value = localStorage.getItem('groq_key') || "";
         document.getElementById('pexelsKeyIn').value = localStorage.getItem('pexels_key') || "";
-        
-        // --- DEEP PERSISTENCE ---
         const saved = localStorage.getItem('myNiches');
         if(saved) {
             const parsed = JSON.parse(saved);
@@ -142,9 +140,8 @@
         localStorage.setItem('pexels_key', document.getElementById('pexelsKeyIn').value);
     }
 
-    // --- PROJECT HUB ---
     function saveCurrentProject() {
-        if(!scenes.length) return alert("Nothing to save!");
+        if(!scenes.length) return alert("Generate content first!");
         const project = { title: document.getElementById('autoStatus').innerText, scenes: scenes, niche: curN };
         localStorage.setItem('autoTube_lastProject', JSON.stringify(project));
         alert("Project Saved!");
@@ -152,7 +149,7 @@
 
     function loadLastProject() {
         const saved = localStorage.getItem('autoTube_lastProject');
-        if(!saved) return alert("No history found.");
+        if(!saved) return alert("No saved data.");
         const p = JSON.parse(saved);
         scenes = p.scenes; curN = p.niche;
         document.getElementById('autoStatus').innerText = p.title;
@@ -197,33 +194,36 @@
         curN = niches[0]; renderNicheUI();
     }
 
+    // --- HARDENED PARSER ---
     function parseCleanJson(rawText) {
         try {
-            let text = rawText.trim();
-            const start = text.indexOf('[');
-            const end = text.lastIndexOf(']');
-            if (start === -1 || end === -1) return null;
-            return JSON.parse(text.substring(start, end + 1));
+            let start = rawText.indexOf('[');
+            let end = rawText.lastIndexOf(']');
+            if (start !== -1 && end !== -1) {
+                let clean = rawText.substring(start, end + 1);
+                return JSON.parse(clean);
+            }
+            return JSON.parse(rawText);
         } catch (e) { return null; }
     }
 
     async function genIdeas() {
         const g = document.getElementById('ideasGrid');
         const key = document.getElementById('groqKeyIn').value;
-        if(!key) return alert("Keys Missing!");
-        g.innerHTML = "<div class='text-[9px] animate-pulse text-red-600 text-center font-black uppercase'>Searching...</div>";
+        if(!key) return alert("Key Missing!");
+        g.innerHTML = "<div class='text-[9px] animate-pulse text-red-600 text-center font-black'>SYNCING...</div>";
         try {
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST", headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
-                    messages: [{role: "system", content: "JSON only."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
+                    messages: [{role: "system", content: "JSON array only."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
                 })
             });
             const d = await r.json();
             const titles = parseCleanJson(d.choices[0].message.content);
             g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item bg-black/40 text-[9px] truncate">${t}</div>`).join('');
-        } catch(e) { g.innerHTML = "Error."; }
+        } catch(e) { g.innerHTML = "Retry."; }
     }
 
     function prepStudio(title) { document.getElementById('autoStatus').innerText = title.toUpperCase(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -250,40 +250,43 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
                     messages: [
-                        {role: "system", content: `Output JSON array only. 20 scenes. Mood: ${mood}. Rule: Sub nudges at 10 & 20.`},
-                        {role: "user", content: `Topic: "${status.innerText}". FORMAT: [{"v_prompt": "keyword", "narration": "text"}]`}
+                        {role: "system", content: "Return ONLY a JSON array. 20 scenes. Mood: Cinematic. Use subscribe nudges at scenes 10 and 20."},
+                        {role: "user", content: `Script for: "${status.innerText}". FORMAT: [{"v_prompt": "simple visual keyword", "narration": "text"}]`}
                     ]
                 })
             });
             const d = await r.json();
-            scenes = parseCleanJson(d.choices[0].message.content);
-            if(!scenes) throw new Error();
+            const raw = d.choices[0].message.content;
+            scenes = parseCleanJson(raw);
+            if(!scenes || !Array.isArray(scenes)) throw new Error("Invalid Format");
             
-            currentIdx = 0; renderSceneBar();
+            currentIdx = 0;
+            renderSceneBar();
             for(let i=0; i<scenes.length; i++) {
-                status.innerText = `READY ${i+1}/20...`;
+                status.innerText = `FILMING ${i+1}/20...`;
                 await fetchMedia(i, pKey);
                 renderSceneBar();
                 if(currentIdx === i) updatePlayer();
             }
             btn.innerText = "DONE";
-        } catch(e) { btn.innerText = "RETRY"; alert("AI formatting error. Try again."); }
+        } catch(e) { btn.innerText = "RETRY"; alert("AI Error: Formatting. Click Launch again."); }
     }
 
     async function fetchMedia(i, pKey) {
         try {
-            const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, { headers: { Authorization: pKey } });
+            const query = encodeURIComponent(scenes[i].v_prompt);
+            const res = await fetch(`https://api.pexels.com/videos/search?query=${query}&per_page=1`, { headers: { Authorization: pKey } });
             const p = await res.json();
             scenes[i].mUrl = p.videos?.[0]?.video_files?.[0]?.link;
             scenes[i].mType = scenes[i].mUrl ? 'video' : 'image';
-            if(!scenes[i].mUrl) scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
+            if(!scenes[i].mUrl) scenes[i].mUrl = `https://image.pollinations.ai/prompt/${query}?width=1280&height=720&nologo=true`;
         } catch (e) { scenes[i].mType = 'image'; scenes[i].mUrl = `https://image.pollinations.ai/prompt/scenery?width=1280&height=720`; }
     }
 
     async function manualFixScene() {
         const prompt = document.getElementById('editPrompt').value.trim();
         const pKey = document.getElementById('pexelsKeyIn').value;
-        if(!prompt || !pKey) return alert("Enter keyword!");
+        if(!prompt || !pKey) return alert("Missing keyword!");
         scenes[currentIdx].v_prompt = prompt;
         await fetchMedia(currentIdx, pKey);
         updatePlayer(); renderSceneBar();
@@ -318,7 +321,7 @@
         const bg = document.getElementById('bgAtmosphere');
         bg.src = audioLibrary[document.getElementById('moodSelect').value];
         bg.volume = document.getElementById('bgVol').value;
-        bg.play();
+        bg.play().catch(() => {});
 
         for(let i=0; i < scenes.length; i++) {
             currentIdx = i; updatePlayer(); renderSceneBar(); speakActive();
