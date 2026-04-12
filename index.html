@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Built-in Voice Edition</title>
+    <title>AutoTube | Voice Master v2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; }
         .yt-red { background-color: #f00; }
-        .yt-red-text { color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
-        .sidebar-item { border-radius: 8px; transition: 0.2s; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; font-size: 13px; }
-        .sidebar-item:hover { background-color: #272727; }
         .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
         .timeline-box { min-width: 280px; background-color: #121212; border: 1px solid #282828; border-radius: 12px; padding: 15px; }
-        .pulse-red { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } }
+        .ctrl-btn { transition: 0.2s; cursor: pointer; }
+        .ctrl-btn:active { scale: 0.95; }
     </style>
 </head>
 <body class="p-3 md:p-6">
@@ -32,23 +29,24 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-widest text-center">Voice Control</h2>
-                <button id="recBtn" onclick="handleMic()" class="w-full border border-[#333] py-3 rounded-xl text-[11px] font-bold hover:bg-[#272727] flex items-center justify-center gap-2">
-                    <div id="micDot" class="w-2 h-2 bg-gray-600 rounded-full"></div> 
-                    <span id="recText">RECORD DNA</span>
-                </button>
+                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest text-center">Voice Selection</h2>
                 
-                <div id="vPlayback" class="hidden mt-4 space-y-2">
-                    <audio id="vAudio" controls class="h-8 w-full"></audio>
-                    <div class="flex gap-2">
-                        <button onclick="saveV()" class="flex-1 bg-emerald-700 text-[10px] py-2 rounded-lg font-bold">SAVE</button>
-                        <button onclick="discardV()" class="flex-1 bg-zinc-800 text-[10px] py-2 rounded-lg font-bold">TRASH</button>
+                <div class="space-y-4">
+                    <div class="bg-black p-3 rounded-lg border border-[#282828]">
+                        <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Select Speaker (Region/Gender)</p>
+                        <select id="voiceSelect" class="w-full bg-black text-[11px] text-red-500 border-none focus:ring-0 outline-none"></select>
                     </div>
-                </div>
-                
-                <div class="mt-4 p-3 bg-black rounded-lg border border-[#282828]">
-                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Voice Engine</p>
-                    <select id="voiceSelect" class="w-full bg-black text-[10px] text-red-500 border-none focus:ring-0"></select>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-black p-2 rounded-lg border border-[#282828]">
+                            <p class="text-[8px] text-gray-500 uppercase mb-1">Speed</p>
+                            <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1" class="w-full accent-red-600">
+                        </div>
+                        <div class="bg-black p-2 rounded-lg border border-[#282828]">
+                            <p class="text-[8px] text-gray-500 uppercase mb-1">Pitch</p>
+                            <input type="range" id="pitchRange" min="0" max="2" step="0.1" value="1" class="w-full accent-red-600">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -66,7 +64,7 @@
             <div class="card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-red-600">
                 <div>
                     <h2 class="text-2xl font-black">Content Engine</h2>
-                    <p class="text-[10px] text-gray-500 uppercase">Active Niche: <span id="activeNText" class="yt-red-text font-bold"></span></p>
+                    <p class="text-[10px] text-gray-500 uppercase">Current Niche: <span id="activeNText" class="text-red-600 font-bold"></span></p>
                 </div>
                 <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all">
                     GENERATE IDEAS
@@ -75,17 +73,26 @@
 
             <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-            <div id="studioRoom" class="hidden card p-6 border-t-2 border-red-600 shadow-2xl">
-                <div class="flex justify-between items-center mb-8">
+            <div id="studioRoom" class="hidden card p-6 border-t-2 border-red-600">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <h2 class="text-[10px] font-black tracking-widest uppercase">Production Studio</h2>
+                    
+                    <div class="flex items-center gap-2 bg-black p-2 rounded-xl border border-[#282828]">
+                        <button onclick="pauseVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-xs">⏸ PAUSE</button>
+                        <button onclick="resumeVoice()" class="p-2 hover:bg-[#272727] rounded-lg text-xs">▶ RESUME</button>
+                        <button onclick="stopVoice()" class="p-2 hover:bg-red-900/20 text-red-500 rounded-lg text-xs">⏹ STOP</button>
+                    </div>
+
                     <div class="flex gap-3">
                         <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-6 py-2 rounded-xl text-[10px] font-black uppercase">1. Script</button>
                         <button onclick="syncVoice()" id="vBtn" class="yt-red px-6 py-2 rounded-xl text-[10px] font-black uppercase">2. Sync Voice</button>
                     </div>
                 </div>
+
                 <div class="flex overflow-x-auto gap-5 pb-6 mb-6" id="timeline"></div>
+
                 <div class="bg-black p-4 rounded-xl border border-[#282828]">
-                    <div id="scriptOut" class="text-xs text-gray-400 font-mono h-32 overflow-y-auto leading-relaxed"></div>
+                    <div id="scriptOut" class="text-xs text-gray-400 font-mono h-32 overflow-y-auto leading-relaxed italic"></div>
                 </div>
             </div>
         </div>
@@ -96,73 +103,78 @@
         let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business"];
         let curN = niches[0];
         let scenes = [];
-        let recorder;
-        let chunks = [];
+        const synth = window.speechSynthesis;
 
-        // Setup Built-in Voices
         function loadVoices() {
             const select = document.getElementById('voiceSelect');
-            const voices = window.speechSynthesis.getVoices();
+            const voices = synth.getVoices();
+            // Grouping by region for easier selection
             select.innerHTML = voices
-                .filter(v => v.lang.includes('en'))
-                .map(v => `<option value="${v.name}">${v.name}</option>`).join('');
+                .sort((a, b) => a.lang.localeCompare(b.lang))
+                .map(v => `<option value="${v.name}">[${v.lang.toUpperCase()}] ${v.name}</option>`).join('');
         }
-        window.speechSynthesis.onvoiceschanged = loadVoices;
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
 
         function init() { renderN(); selN(curN); loadVoices(); }
 
-        async function handleMic() {
-            const btn = document.getElementById('recBtn');
-            const dot = document.getElementById('micDot');
-            if (!recorder || recorder.state === "inactive") {
-                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                recorder = new MediaRecorder(s);
-                chunks = [];
-                recorder.ondataavailable = (e) => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const b = new Blob(chunks, { type: 'audio/mpeg' });
-                    document.getElementById('vAudio').src = URL.createObjectURL(b);
-                    document.getElementById('vPlayback').classList.remove('hidden');
-                };
-                recorder.start();
-                btn.classList.add('pulse-red', 'border-red-600');
-                dot.classList.replace('bg-gray-600', 'bg-red-600');
-                document.getElementById('recText').innerText = "RECORDING...";
-            } else {
-                recorder.stop();
-                btn.classList.remove('pulse-red', 'border-red-600');
-                dot.classList.replace('bg-red-600', 'bg-emerald-500');
-                document.getElementById('recText').innerText = "CAPTURED";
-            }
-        }
-        function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD DNA"; }
-        function saveV() { alert("Voice Saved!"); document.getElementById('vPlayback').classList.add('hidden'); }
+        // --- GLOBAL VOICE FUNCTIONS ---
+        function pauseVoice() { synth.pause(); }
+        function resumeVoice() { synth.resume(); }
+        function stopVoice() { synth.cancel(); }
 
+        function speakLine(index) {
+            synth.cancel(); // Stop any current speech
+            const msg = new SpeechSynthesisUtterance();
+            const voices = synth.getVoices();
+            msg.voice = voices.find(v => v.name === document.getElementById('voiceSelect').value);
+            msg.rate = document.getElementById('rateRange').value;
+            msg.pitch = document.getElementById('pitchRange').value;
+            msg.text = scenes[index].trim();
+            synth.speak(msg);
+        }
+
+        async function syncVoice() {
+            const btn = document.getElementById('vBtn'); btn.innerText = "SYNCING...";
+            for(let i=0; i<scenes.length; i++) {
+                speakLine(i);
+                // Wait for speech to finish before next scene
+                await new Promise(r => {
+                    const check = setInterval(() => {
+                        if(!synth.speaking) { clearInterval(check); r(); }
+                    }, 200);
+                });
+            }
+            btn.innerText = "2. SYNC VOICE";
+        }
+
+        // --- UI LOGIC ---
         function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); } }
         function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
         function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
-                <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
-                    <span>${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
+                <div onclick="selN('${n}')" class="sidebar-item cursor-pointer p-3 rounded-lg flex justify-between items-center ${n===curN?'active-niche':''} hover:bg-[#272727] mb-1">
+                    <span class="text-xs">${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 text-xs">🗑️</span>
                 </div>`).join('');
         }
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
 
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
-            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Thinking...</p>";
+            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Consulting AI Brain...</p>";
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 viral titles for ${curN}. JSON only: ["T1", "T2"]`}]})
+                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 short titles for ${curN}. JSON only: ["T1", "T2"]`}]})
             });
             const d = await r.json();
             let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
             const t = JSON.parse(txt);
             g.innerHTML = t.map(x => `
-                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer">
+                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
                     <h3 class="font-bold text-sm">${x}</h3>
-                    <p class="text-[9px] yt-red-text mt-3 font-black">PRODUCE →</p>
+                    <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
                 </div>`).join('');
         }
 
@@ -182,31 +194,16 @@
                 <div class="timeline-box">
                     <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
                     <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
-                    <button onclick="speakLine(${i})" class="mt-4 yt-red w-full py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">▶ Play Voice</button>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
+                        <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
+                    </div>
                 </div>`).join('');
             btn.innerText = "1. SCRIPT";
-        }
-
-        function speakLine(index) {
-            const msg = new SpeechSynthesisUtterance();
-            const voices = window.speechSynthesis.getVoices();
-            msg.voice = voices.find(v => v.name === document.getElementById('voiceSelect').value);
-            msg.text = scenes[index].trim();
-            window.speechSynthesis.speak(msg);
-        }
-
-        // Auto-sync function
-        async function syncVoice() {
-            const btn = document.getElementById('vBtn'); btn.innerText = "SYNCING...";
-            for(let i=0; i<scenes.length; i++) {
-                speakLine(i);
-                await new Promise(r => setTimeout(r, 1500)); 
-            }
-            btn.innerText = "2. SYNC VOICE";
         }
 
         init();
     </script>
 </body>
-                    </html>
-                                                                                  
+    </html>
+    
