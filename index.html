@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Solid Foundation v5.0</title>
+    <title>AutoTube | Hardcoded v5.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -11,17 +11,17 @@
         .yt-red { background-color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
         
-        /* CINEMA STAGE */
-        .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 20px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.25); }
+        /* THE BIG SCREEN */
+        .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 20px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.3); }
         video, img { width: 100%; height: 100%; object-fit: cover; }
         
         .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .control-btn:hover { background: #222; border-color: #f00; transform: translateY(-1px); }
         
-        /* NICHE STYLING */
-        .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 14px; font-size: 12px; margin-bottom: 6px; border: 1px solid transparent; transition: 0.2s; background: #151515; color: #888; }
+        /* NICHE LIST STYLING */
+        .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 14px; font-size: 11px; margin-bottom: 6px; border: 1px solid transparent; transition: 0.2s; background: #151515; color: #999; text-transform: uppercase; font-weight: 700; }
         .sidebar-item:hover { border-color: #444; color: #fff; background: #1a1a1a; }
-        .active-niche { background-color: #272727 !important; border-color: #f00 !important; color: #f00 !important; font-weight: 900; }
+        .active-niche { background-color: #272727 !important; border-color: #f00 !important; color: #f00 !important; }
         
         input[type=range] { accent-color: #f00; cursor: pointer; }
         .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -38,17 +38,17 @@
             <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-xl shadow-red-900/30">
                 <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">CORE 5.0</span></h1>
+            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">CORE 5.1</span></h1>
         </div>
-        <button onclick="resetStudioOnly()" class="control-btn reset-btn px-6">CLEAR STUDIO (NEW PROJECT)</button>
+        <button onclick="fullReset()" class="control-btn reset-btn px-6">NEW PROJECT (RESET STUDIO)</button>
     </div>
 
     <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-3 space-y-6">
             <div class="card p-6 border-t-4 border-red-600">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Niche Repository</h2>
-                <p class="text-[9px] text-gray-600 uppercase mb-3 font-bold">Active Focus: <span id="activeNText" class="text-red-600">NONE</span></p>
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Global Niches</h2>
+                <p class="text-[9px] text-gray-600 uppercase mb-3 font-bold">Selected: <span id="activeNText" class="text-red-600">NONE</span></p>
                 
                 <div id="nicheList" class="max-h-96 overflow-y-auto mb-4 space-y-1"></div>
                 
@@ -56,12 +56,12 @@
                     <input id="nIn" type="text" placeholder="Add niche..." class="flex-1 bg-black border border-[#333] rounded-lg p-3 text-xs outline-none focus:border-red-600">
                     <button onclick="addNewNiche()" class="bg-[#272727] px-5 rounded-lg text-white font-bold hover:bg-red-600 transition-colors">+</button>
                 </div>
-                <button onclick="genIdeas()" class="w-full yt-red py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:brightness-110">Brainstorm Viral Topics</button>
+                <button onclick="genIdeas()" class="w-full yt-red py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:brightness-110">Brainstorm Topics</button>
                 <div id="ideasGrid" class="mt-4 space-y-2"></div>
             </div>
 
             <div class="card p-6">
-                <h2 class="text-[10px] font-black text-gray-600 uppercase mb-4 tracking-widest">System Keys</h2>
+                <h2 class="text-[10px] font-black text-gray-600 uppercase mb-4 tracking-widest">Master Keys</h2>
                 <div class="space-y-3">
                     <input id="groqKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-3 rounded-lg outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Groq API Key">
                     <input id="pexelsKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-3 rounded-lg outline-none focus:border-red-600" onchange="saveKeys()" placeholder="Pexels API Key">
@@ -70,20 +70,20 @@
         </div>
 
         <div class="lg:col-span-9 space-y-6">
-            <div class="card p-8 border-b-4 border-red-600">
+            <div class="card p-8 border-b-4 border-red-600 relative">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
                     <div>
                         <h2 class="text-2xl font-black italic tracking-tighter uppercase">Production Cinema</h2>
                         <p class="text-[10px] text-gray-500 uppercase mt-1">Status: <span id="autoStatus" class="text-red-500">READY</span></p>
                     </div>
-                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-12 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-2xl transition-all">Launch 20-Scene Production</button>
+                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-12 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-2xl transition-all">Launch 20-Scene Sequence</button>
                 </div>
 
                 <div id="studioArea" class="space-y-8 opacity-40 grayscale pointer-events-none transition-all duration-700">
                     
                     <div class="player-stage group">
                         <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-[10px] uppercase bg-black px-10">
-                            Theater Screen Off
+                            Theater Screen Ready
                         </div>
                         
                         <div class="absolute inset-y-0 left-0 flex items-center pl-6 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -100,7 +100,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                         <div class="md:col-span-7 bg-black p-8 rounded-3xl border border-[#222]">
-                            <p class="text-[10px] text-gray-500 font-black mb-4 uppercase tracking-[0.3em]">Clean Narration</p>
+                            <p class="text-[10px] text-gray-500 font-black mb-4 uppercase tracking-[0.3em]">Narration Output</p>
                             <div id="currentSceneText" class="text-lg italic text-white leading-relaxed min-h-[80px]">---</div>
                             <div class="mt-6 pt-6 border-t border-white/5 flex flex-col gap-2">
                                 <div class="text-[10px] text-emerald-700 font-mono uppercase tracking-widest" id="currentVisualPrompt">---</div>
@@ -127,7 +127,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="speakActive()" class="control-btn bg-white text-black py-4">▶ VOICE PLAY</button>
                                 <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white py-4">⏸ VOICE PAUSE</button>
-                                <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-red-600 text-white border-none py-4 shadow-xl shadow-red-900/30">🎬 BROADCAST 20-SCENE SEQUENCE</button>
+                                <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-red-600 text-white border-none py-4 shadow-xl shadow-red-900/30">🎬 PLAY 20-SCENE SEQUENCE</button>
                             </div>
                         </div>
                     </div>
@@ -137,36 +137,43 @@
     </div>
 
     <script>
-        // MASTER DATA - Loaded strictly
+        // --- HARDCODED NICHE DATABASE ---
+        // These will always be the baseline if storage is cleared.
+        const defaultNiches = [
+            "African Folk Tales", 
+            "Bible Prophecies", 
+            "Modern AI Tech", 
+            "Luxury Lifestyle", 
+            "Ancient Mythology",
+            "Success Psychology"
+        ];
+
         let niches = [];
         let curN = "";
         let scenes = []; 
         let currentIdx = 0;
         const synth = window.speechSynthesis;
 
-        // --- BOOT SEQUENCE ---
         function initApp() {
-            // 1. Load Keys
+            // Load API Keys
             document.getElementById('groqKeyIn').value = localStorage.getItem('groq_key') || "";
             document.getElementById('pexelsKeyIn').value = localStorage.getItem('pexels_key') || "";
             
-            // 2. Load Niches from Storage
+            // Load Niches (Merge hardcoded defaults with any saved additions)
             const saved = localStorage.getItem('myNiches');
             if(saved) {
                 niches = JSON.parse(saved);
             } else {
-                // Initial defaults if user has NEVER used the app
-                niches = ["African Folk Tales", "Bible History", "Modern AI"];
+                niches = [...defaultNiches];
                 localStorage.setItem('myNiches', JSON.stringify(niches));
             }
             
             curN = niches[0];
             
-            // 3. UI Sync
-            refreshNicheUI();
+            // Render and Focus
+            renderNicheUI();
             document.getElementById('activeNText').innerText = curN.toUpperCase();
             
-            // 4. Voice Load
             setTimeout(loadVoices, 500);
         }
 
@@ -175,14 +182,14 @@
             localStorage.setItem('pexels_key', document.getElementById('pexelsKeyIn').value);
         }
 
-        // --- NICHE ENGINE (Fixed) ---
-        function refreshNicheUI() {
+        // --- NICHE ENGINE (HARDENED) ---
+        function renderNicheUI() {
             const list = document.getElementById('nicheList');
             if(!list) return;
             list.innerHTML = niches.map((n, i) => `
                 <div onclick="selectNiche('${n.replace(/'/g, "\\'")}')" class="sidebar-item ${n === curN ? 'active-niche' : ''}">
                     <span>${n}</span>
-                    <span onclick="deleteNiche(${i},event)" class="text-gray-600 hover:text-red-500 transition-colors">🗑️</span>
+                    <span onclick="deleteNiche(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
                 </div>`).join('');
         }
 
@@ -190,7 +197,7 @@
             synth.cancel();
             curN = n;
             document.getElementById('activeNText').innerText = n.toUpperCase();
-            refreshNicheUI();
+            renderNicheUI();
         }
 
         function addNewNiche() {
@@ -200,7 +207,7 @@
                 niches.push(val);
                 localStorage.setItem('myNiches', JSON.stringify(niches));
                 input.value = "";
-                refreshNicheUI();
+                renderNicheUI();
             }
         }
 
@@ -209,27 +216,25 @@
             niches.splice(index, 1);
             localStorage.setItem('myNiches', JSON.stringify(niches));
             if(niches.length > 0) curN = niches[0];
-            else curN = "NONE";
-            refreshNicheUI();
+            renderNicheUI();
         }
 
-        // --- STUDIO ENGINE ---
-        function resetStudioOnly() {
+        // --- PRODUCTION ENGINE ---
+        function fullReset() {
             synth.cancel();
             scenes = [];
             currentIdx = 0;
             
-            // Reset Studio UI
+            // Clear Player UI
             document.getElementById('studioArea').classList.add('opacity-40', 'grayscale', 'pointer-events-none');
             document.getElementById('autoStatus').innerText = "READY";
-            document.getElementById('mainMediaBox').innerText = "Theater Screen Off... Studio Reset.";
+            document.getElementById('mainMediaBox').innerText = "Studio Reset... Ready for New Topic.";
             document.getElementById('currentSceneText').innerText = "---";
             document.getElementById('currentVisualPrompt').innerText = "---";
             document.getElementById('sceneIndicator').innerText = "Scene 0/20";
-            document.getElementById('prodBtn').innerText = "Launch 20-Scene Production";
             
-            // IMPORTANT: Niches are not touched here.
-            refreshNicheUI();
+            // Explicitly force niches to show up
+            renderNicheUI();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -244,7 +249,7 @@
                     headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `5 viral YouTube titles for: ${curN}. Output ONLY clean JSON array of strings.`}]
+                        messages: [{role: "user", content: `5 viral YouTube short titles for: ${curN}. Output ONLY clean JSON array of strings.`}]
                     })
                 });
                 const d = await r.json();
@@ -286,12 +291,12 @@
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
                         messages: [{role: "user", content: `Create a 20-scene script for "${status.innerText}". Theme: ${curN}. 
-                        ERA MATCHING:
-                        - If Ancient/Tales: "cinematic 4k authentic history, NO modern tech, dramatic atmosphere".
-                        - If Tech: "8k futuristic neon, high-tech interface, sleek robots".
-                        - Scene 10: Narrator says "Subscribe for more amazing content."
-                        - Scene 20: End with "Like and subscribe!"
-                        JSON ONLY: [{"v_prompt": "matching visual prompt", "narration": "Full narration text"}]`}]
+                        STYLING:
+                        - If Ancient/Tales/Bible: use "cinematic 4k authentic historical, NO modern technology, moody lighting".
+                        - If Tech: use "8k futuristic neon, high-tech, sleek robots".
+                        - Scene 10: "Subscribe for more content."
+                        - Scene 20: "Like and subscribe!"
+                        JSON ONLY: [{"v_prompt": "highly detailed visual prompt matching the theme", "narration": "Clean story text"}]`}]
                     })
                 });
                 const d = await r.json();
@@ -301,7 +306,7 @@
                 updatePlayer();
 
                 for(let i=0; i<scenes.length; i++) {
-                    status.innerText = `FILMING SCENE ${i+1} OF 20...`;
+                    status.innerText = `FILMING SCENE ${i+1} / 20...`;
                     try {
                         const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, {
                             headers: { Authorization: pKey }
@@ -317,7 +322,7 @@
                     }
                     if(currentIdx === i) updatePlayer();
                 }
-                btn.innerText = "PRODUCTION COMPLETE";
+                btn.innerText = "EPIC COMPLETED";
                 btn.classList.remove('loading-pulse');
             } catch(e) { alert("Error. Please retry."); btn.innerText = "RETRY"; }
         }
@@ -331,4 +336,4 @@
             document.getElementById('currentVisualPrompt').innerText = "VISUAL: " + s.v_prompt;
             box.innerHTML = '';
             if (!s.mUrl) {
-                box.innerHTML = `<div class="animate-pulse text-[8px] uppercase tracking-widest">Generating 
+                box.innerHTML = `<div class="animate-pul
