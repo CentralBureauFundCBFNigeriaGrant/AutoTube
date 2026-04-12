@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoTube | v5.7 Final</title>
+    <title>AutoTube | v5.8 Growth</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -25,7 +25,7 @@
             <div class="w-10 h-7 yt-red rounded flex items-center justify-center">
                 <div class="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v5.7</span></h1>
+            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v5.8</span></h1>
         </div>
     </div>
 
@@ -85,8 +85,8 @@
             </div>
         </div>
     </div>
-</body>
-<script>
+    </body>
+    <script>
     let niches = ["African Folk Tales", "Bible History", "Modern AI Tech", "Success Psychology"];
     let curN = niches[0];
     let scenes = []; 
@@ -139,10 +139,8 @@
         renderNicheUI();
     }
 
-    // --- REINFORCED JSON PARSER ---
     function parseCleanJson(rawText) {
         try {
-            // Remove markdown code blocks and excess whitespace
             let clean = rawText.replace(/```json|```/gi, "").trim();
             const start = clean.indexOf('[');
             const end = clean.lastIndexOf(']');
@@ -150,10 +148,7 @@
                 return JSON.parse(clean.substring(start, end + 1));
             }
             return JSON.parse(clean);
-        } catch (e) {
-            console.error("AI Response was not valid JSON:", rawText);
-            return null;
-        }
+        } catch (e) { return null; }
     }
 
     async function genIdeas() {
@@ -203,8 +198,8 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
                     messages: [
-                        {role: "system", content: "You are a JSON generator. Do not use Markdown. Do not speak. Return ONLY a valid JSON array of objects."},
-                        {role: "user", content: `Create a 20-scene script for topic: "${status.innerText}". JSON FORMAT: [{"v_prompt": "pexels query", "narration": "story text"}].`}
+                        {role: "system", content: "You are a JSON generator. Do not use Markdown. Do not speak. Return ONLY a valid JSON array of objects. CRITICAL RULE: Scene 10 narration must include a call to 'Subscribe for more amazing content'. Scene 20 narration must end with 'Like and subscribe for the next video'."},
+                        {role: "user", content: `Create a 20-scene script for topic: "${status.innerText}". Theme: ${curN}. FORMAT: [{"v_prompt": "pexels search", "narration": "story text"}]`}
                     ]
                 })
             });
@@ -229,7 +224,7 @@
                 if(currentIdx === i) updatePlayer();
             }
             btn.innerText = "DONE";
-        } catch(e) { alert("AI sent bad data. Click Launch again."); btn.innerText = "RETRY"; }
+        } catch(e) { alert("AI Error. Retry."); btn.innerText = "RETRY"; }
     }
 
     function updatePlayer() {
@@ -264,3 +259,4 @@
     function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
 </script>
 </html>
+
