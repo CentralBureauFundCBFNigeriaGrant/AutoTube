@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Cinema & Control v4.6</title>
+    <title>AutoTube | Cinematic Vision v4.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -11,18 +11,22 @@
         .yt-red { background-color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
         
-        /* CINEMA WIDE PLAYER */
-        .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 20px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 0 50px rgba(255,0,0,0.1); }
-        video, img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.3s; }
+        .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 20px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.15); }
+        video, img { width: 100%; height: 100%; object-fit: cover; }
         
         .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .control-btn:hover { background: #222; border-color: #f00; transform: translateY(-1px); }
+        
         .active-niche { background-color: #272727; border-color: #f00; color: #f00; font-weight: bold; }
         .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 12px; font-size: 12px; margin-bottom: 4px; border: 1px solid transparent; transition: 0.2s; }
         
         input[type=range] { accent-color: #f00; cursor: pointer; }
         .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        
+        /* New Project Reset Pulse */
+        .reset-btn { background: #1a1a1a; color: #666; border: 1px solid #333; }
+        .reset-btn:hover { background: #f00; color: #fff; border-color: #f00; }
     </style>
 </head>
 <body class="p-4 md:p-6" onload="init()">
@@ -32,15 +36,16 @@
             <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-xl shadow-red-900/30">
                 <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">CINEMA 4.6</span></h1>
+            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">VISION 4.7</span></h1>
         </div>
+        <button onclick="createNewProject()" class="control-btn reset-btn px-6">NEW PROJECT (RESET)</button>
     </div>
 
     <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-3 space-y-6">
             <div class="card p-6 border-t-4 border-red-600">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Niche Selection</h2>
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Niche & Brainstorm</h2>
                 <p class="text-[9px] text-gray-600 uppercase mb-3 font-bold">Selected: <span id="activeNText" class="text-red-600">NONE</span></p>
                 <div id="nicheList" class="max-h-60 overflow-y-auto mb-4 space-y-1"></div>
                 <div class="flex gap-2 mb-6">
@@ -64,17 +69,17 @@
             <div class="card p-8 border-b-4 border-red-600 relative">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
                     <div>
-                        <h2 class="text-2xl font-black italic tracking-tighter uppercase">Production Cinema</h2>
-                        <p class="text-[10px] text-gray-500 uppercase mt-1">Status: <span id="autoStatus" class="text-red-500">System Ready</span></p>
+                        <h2 class="text-2xl font-black italic tracking-tighter uppercase">Production Theater</h2>
+                        <p class="text-[10px] text-gray-500 uppercase mt-1">Project: <span id="autoStatus" class="text-red-500">READY</span></p>
                     </div>
-                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-12 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-2xl transition-all">Launch Sequence</button>
+                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-12 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-2xl transition-all">Launch 20-Scene Epic</button>
                 </div>
 
                 <div id="studioArea" class="space-y-8 opacity-40 grayscale pointer-events-none transition-all duration-700">
                     
                     <div class="player-stage group">
-                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-xs uppercase bg-black px-10">
-                            Theater Screen Off
+                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-[10px] uppercase bg-black px-10">
+                            Screen Ready... Select a topic to film.
                         </div>
                         
                         <div class="absolute inset-y-0 left-0 flex items-center pl-6 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -84,8 +89,8 @@
                             <button onclick="nextScene()" class="bg-black/80 p-5 rounded-full border border-white/10 hover:bg-red-600">→</button>
                         </div>
 
-                        <div class="absolute top-4 right-4 flex gap-2">
-                             <span id="sceneIndicator" class="bg-black/90 px-4 py-1.5 rounded-full text-[10px] font-bold text-red-600 border border-white/10 uppercase">Scene 0/0</span>
+                        <div class="absolute top-4 right-4">
+                             <span id="sceneIndicator" class="bg-black/90 px-4 py-1.5 rounded-full text-[10px] font-bold text-red-600 border border-white/10 uppercase">Scene 0/20</span>
                         </div>
                     </div>
 
@@ -93,11 +98,11 @@
                         
                         <div class="md:col-span-7 bg-black p-8 rounded-3xl border border-[#222]">
                             <p class="text-[10px] text-gray-500 font-black mb-4 uppercase tracking-[0.3em]">Cinematic Narration</p>
-                            <div id="currentSceneText" class="text-lg italic text-white leading-relaxed min-h-[80px]">Pick a viral topic to begin...</div>
-                            <div class="mt-6 pt-6 border-t border-white/5 flex justify-between items-center">
-                                <div class="text-[10px] text-emerald-700 font-mono uppercase tracking-widest" id="currentVisualPrompt">Waiting for Prompt...</div>
+                            <div id="currentSceneText" class="text-lg italic text-white leading-relaxed min-h-[80px]">---</div>
+                            <div class="mt-6 pt-6 border-t border-white/5 flex flex-col gap-2">
+                                <div class="text-[10px] text-emerald-700 font-mono uppercase tracking-widest" id="currentVisualPrompt">---</div>
                                 <div class="flex gap-2">
-                                    <button onclick="toggleVideo()" class="bg-[#1a1a1a] p-2 rounded text-[9px] font-black border border-[#333]">VIDEO PLAY/PAUSE</button>
+                                    <button onclick="toggleVideo()" class="bg-[#1a1a1a] p-2 rounded text-[8px] font-black border border-[#333]">VIDEO PLAY/PAUSE</button>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +125,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="speakActive()" class="control-btn bg-white text-black py-4">▶ VOICE PLAY</button>
                                 <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white py-4">⏸ VOICE PAUSE</button>
-                                <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-red-600 text-white border-none py-4 shadow-xl shadow-red-900/30">🎬 PLAY FULL SEQUENCE (1 to End)</button>
+                                <button onclick="playFullSequence()" id="playAllBtn" class="col-span-2 control-btn bg-red-600 text-white border-none py-4 shadow-xl shadow-red-900/30">🎬 BROADCAST 20-SCENE SEQUENCE</button>
                             </div>
                         </div>
                     </div>
@@ -130,7 +135,7 @@
     </div>
 
     <script>
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Luxury Lifestyle"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Modern Tech", "Ancient History"];
         let curN = niches[0];
         let scenes = []; 
         let currentIdx = 0;
@@ -147,41 +152,50 @@
             localStorage.setItem('pexels_key', document.getElementById('pexelsKeyIn').value);
         }
 
+        function createNewProject() {
+            synth.cancel();
+            scenes = [];
+            currentIdx = 0;
+            document.getElementById('studioArea').classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+            document.getElementById('autoStatus').innerText = "READY FOR NEW PROJECT";
+            document.getElementById('mainMediaBox').innerText = "Screen Off... New Project Created.";
+            document.getElementById('currentSceneText').innerText = "---";
+            document.getElementById('currentVisualPrompt').innerText = "---";
+            document.getElementById('sceneIndicator').innerText = "Scene 0/20";
+            document.getElementById('prodBtn').innerText = "Launch 20-Scene Epic";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function loadVoices() {
             const vS = document.getElementById('voiceSelect');
             const voices = synth.getVoices();
             if(!voices.length) { setTimeout(loadVoices, 300); return; }
-            vS.innerHTML = voices.map(v => `<option value="${v.name}">[${v.lang}] ${v.name}</option>`).join('');
+            vS.innerHTML = voices.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
         }
 
-        // IMPROVED: Instant Switcher
         function selN(n) { 
-            synth.cancel(); curN = n; scenes = []; currentIdx = 0;
-            const disp = document.getElementById('activeNText');
-            if(disp) disp.innerText = n.toUpperCase();
-            document.getElementById('ideasGrid').innerHTML = "";
-            document.getElementById('studioArea').classList.add('opacity-40', 'grayscale', 'pointer-events-none');
-            document.getElementById('autoStatus').innerText = "SYSTEM READY";
+            synth.cancel(); curN = n;
+            document.getElementById('activeNText').innerText = n.toUpperCase();
             renderN(); 
         }
 
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
             const key = document.getElementById('groqKeyIn').value;
-            if(!key) return alert("Key Required!");
-            g.innerHTML = "<div class='text-center py-4 text-red-600 animate-pulse'>GENERATING TOPICS...</div>";
+            if(!key) return alert("API Key Missing!");
+            g.innerHTML = "<div class='text-center py-4 text-red-600 animate-pulse uppercase text-[10px] font-black'>Scanning Trends...</div>";
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST", 
                     headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `5 viral YouTube titles for: ${curN}. Output ONLY JSON array of strings.`}]
+                        messages: [{role: "user", content: `5 viral YouTube titles for: ${curN}. Output ONLY clean JSON array of strings.`}]
                     })
                 });
                 const d = await r.json();
                 const titles = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
-                g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item hover:border-red-600 bg-black/40 text-gray-400 hover:text-white uppercase font-black">${t}</div>`).join('');
+                g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item hover:border-red-600 bg-black/40 uppercase font-black text-gray-400 hover:text-white">${t}</div>`).join('');
             } catch(e) { g.innerHTML = "Error. Retry."; }
         }
 
@@ -191,13 +205,8 @@
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
-        // IMPROVED: Clean Narration Logic
         function cleanScript(text) {
-            return text
-                .replace(/Scene \d+:?|Scene [A-Za-z]+:?|\[S\d+\]|#+/gi, "") // Remove Scene 1, [S1], hashtags
-                .replace(/\(.*?\)/g, "") // Remove bracketed keywords
-                .replace(/\*\*/g, "") // Remove bold
-                .trim();
+            return text.replace(/Scene \d+:?|\[S\d+\]|#+|\(.*?\)/gi, "").replace(/\*\*/g, "").trim();
         }
 
         async function genFullProduction() {
@@ -206,7 +215,7 @@
             const gKey = document.getElementById('groqKeyIn').value;
             const pKey = document.getElementById('pexelsKeyIn').value;
 
-            btn.innerText = "🎬 FILMING...";
+            btn.innerText = "🎬 FILMING EPIC (20 SCENES)...";
             btn.classList.add('loading-pulse');
 
             try {
@@ -215,18 +224,24 @@
                     headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Create a 6-scene script for "${status.innerText}". Scene 3: Sub nudge. Scene 6: End with Like/Sub. JSON: [{"v_prompt": "10 word visual", "narration": "Clean story text"}]`}]
+                        messages: [{role: "user", content: `Create a DETAILED 20-scene script for "${status.innerText}". 
+                        STYLING RULES:
+                        - If Biblical/Ancient: v_prompt must include "epic cinematic history, 4k, ancient textures, no modern tech".
+                        - If Technology: v_prompt must include "futuristic, sleek, high-tech, neon, 8k".
+                        - If History: v_prompt must include "vintage sepia, grainy historical footage style".
+                        - In Scene 10: Narrator says "Subscribe for more amazing content like this."
+                        - In Scene 20: End with "Like and subscribe to stay tuned!"
+                        Output ONLY JSON: [{"v_prompt": "Stylized visual prompt matching the topic era", "narration": "Full story text"}]`}]
                     })
                 });
                 const d = await r.json();
-                const match = d.choices[0].message.content.match(/\[\s*\{.*\}\s*\]/s);
-                scenes = JSON.parse(match[0]);
+                scenes = JSON.parse(d.choices[0].message.content.match(/\[\s*\{.*\}\s*\]/s)[0]);
                 
                 currentIdx = 0;
                 updatePlayer();
 
                 for(let i=0; i<scenes.length; i++) {
-                    status.innerText = `FILMING SCENE ${i+1}...`;
+                    status.innerText = `FILMING SCENE ${i+1} OF 20...`;
                     try {
                         const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, {
                             headers: { Authorization: pKey }
@@ -238,28 +253,27 @@
                         } else { throw new Error(); }
                     } catch (e) {
                         scenes[i].mType = 'image';
-                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('8k ' + scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
+                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
                     }
                     if(currentIdx === i) updatePlayer();
                 }
-                btn.innerText = "READY";
+                btn.innerText = "EPIC READY";
                 btn.classList.remove('loading-pulse');
                 status.innerText = "PRODUCTION COMPLETE";
-            } catch(e) { alert("Production Error."); btn.innerText = "RETRY"; }
+            } catch(e) { alert("Error generating 20 scenes."); btn.innerText = "RETRY"; }
         }
 
         function updatePlayer() {
             if(!scenes[currentIdx]) return;
             const s = scenes[currentIdx];
             const box = document.getElementById('mainMediaBox');
-            
             document.getElementById('sceneIndicator').innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
             document.getElementById('currentSceneText').innerText = cleanScript(s.narration);
-            document.getElementById('currentVisualPrompt').innerText = "PROMPT: " + s.v_prompt;
+            document.getElementById('currentVisualPrompt').innerText = "VISUAL STYLE: " + s.v_prompt;
 
             box.innerHTML = '';
             if (!s.mUrl) {
-                box.innerHTML = `<div class="animate-pulse text-[10px] tracking-[0.5em]">SYNCING CINEMATICS...</div>`;
+                box.innerHTML = `<div class="animate-pulse text-[8px] uppercase tracking-widest">Generating Visual Context...</div>`;
             } else if (s.mType === 'video') {
                 box.innerHTML = `<video id="activeVideo" src="${s.mUrl}" autoplay loop muted playsinline></video>`;
             } else {
@@ -267,10 +281,7 @@
             }
         }
 
-        function toggleVideo() {
-            const v = document.getElementById('activeVideo');
-            if(v) { if(v.paused) v.play(); else v.pause(); }
-        }
+        function toggleVideo() { const v = document.getElementById('activeVideo'); if(v) { if(v.paused) v.play(); else v.pause(); } }
 
         function speakActive() {
             if(!scenes[currentIdx]) return;
@@ -300,15 +311,5 @@
         function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
         function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); document.getElementById('nIn').value=""; } }
         function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); }
-        
         function renderN() {
-            document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
-                <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
-                    <span>${n}</span>
-                    <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
-                </div>`).join('');
-        }
-    </script>
-</body>
-                    </html>
-                                                                                           
+            document.getElementById('nicheList').innerHTML = niches.m
