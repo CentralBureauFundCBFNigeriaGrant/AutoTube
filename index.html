@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Ironclad v4.2</title>
+    <title>AutoTube | Ironclad v4.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -28,7 +28,7 @@
             <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-xl shadow-red-900/30">
                 <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">PRO 4.2</span></h1>
+            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">PRO 4.3</span></h1>
         </div>
     </div>
 
@@ -94,7 +94,7 @@
                             <div id="currentSceneText" class="text-base italic leading-relaxed text-gray-300 min-h-[60px]">Select a viral topic to begin...</div>
                             <div class="mt-4 pt-4 border-t border-white/5">
                                 <p class="text-[8px] text-gray-700 font-bold uppercase mb-1">Visual Direction</p>
-                                <div id="currentVisualPrompt" class="text-[9px] text-emerald-700 font-mono italic">Searching for cinematic motion...</div>
+                                <div id="currentVisualPrompt" class="text-[9px] text-emerald-700 font-mono italic">---</div>
                             </div>
                         </div>
 
@@ -152,13 +152,36 @@
                 .map(v => `<option value="${v.name}">${v.name.includes('Google') ? '⭐ ' : ''}[${v.lang}] ${v.name}</option>`).join('');
         }
 
+        // --- THE FIX: NICHE RESET ---
+        function selN(n) { 
+            // 1. Stop current speech immediately
+            synth.cancel();
+            
+            // 2. Clear out production data
+            curN = n;
+            scenes = [];
+            currentIdx = 0;
+            
+            // 3. Reset UI Elements
+            document.getElementById('activeNText').innerText = n.toUpperCase();
+            document.getElementById('ideasGrid').innerHTML = "";
+            document.getElementById('currentSceneText').innerText = "Select a viral topic to begin...";
+            document.getElementById('currentVisualPrompt').innerText = "---";
+            document.getElementById('mainMediaBox').innerHTML = 'No Production Active.<br>Pick a topic and click "Launch".';
+            document.getElementById('sceneIndicator').innerText = "Scene 0/0";
+            document.getElementById('autoStatus').innerText = "System Ready";
+            
+            // 4. Lock the studio again until a new topic is picked
+            document.getElementById('studioArea').classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+            
+            renderN(); 
+        }
+
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
             const key = document.getElementById('groqKeyIn').value;
             if(!key) return alert("Please add your Groq Key first!");
-            
             g.innerHTML = "<div class='text-center py-6'><div class='animate-spin inline-block w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full'></div></div>";
-            
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST", 
@@ -169,21 +192,18 @@
                     })
                 });
                 const d = await r.json();
-                const content = d.choices[0].message.content.match(/\[.*\]/s)[0];
-                const titles = JSON.parse(content);
-                
-                // Fix the [object Object] bug by explicitly treating titles as strings
+                const titles = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
                 g.innerHTML = titles.map(t => `
                     <div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="bg-black/50 border border-[#222] p-4 rounded-xl text-xs cursor-pointer hover:border-red-600 hover:bg-red-600/5 transition-all flex justify-between items-center group">
                         <span class="font-bold text-gray-300 group-hover:text-white">${t}</span>
                         <span class="text-red-600 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity">SELECT →</span>
                     </div>`).join('');
-            } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px] bg-red-900/10 p-4 rounded border border-red-900/20'>Error: AI response busy. Try again.</p>"; }
+            } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px]'>AI busy. Retry.</p>"; }
         }
 
         function prepStudio(title) {
             document.getElementById('studioArea').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
-            document.getElementById('autoStatus').innerText = `Targeting: ${title}`;
+            document.getElementById('autoStatus').innerText = `Target: ${title}`;
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
@@ -192,7 +212,7 @@
             const status = document.getElementById('autoStatus');
             btn.innerText = "🎬 FILMING...";
             btn.classList.add('loading-pulse');
-            status.innerText = "WRITING CINEMATIC SCRIPT...";
+            status.innerText = "WRITING SCRIPT...";
             
             const gKey = document.getElementById('groqKeyIn').value;
             const pKey = document.getElementById('pexelsKeyIn').value;
@@ -203,21 +223,16 @@
                     headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Create a 6-scene script for a video titled "${document.getElementById('autoStatus').innerText}". 
-                        Scene 3 must nudge viewers to "Subscribe for more daily inspiration". 
-                        Scene 6 must end with "Like and subscribe to join our community".
-                        Format: JSON array of objects with 'v_prompt' (10-word visual description) and 'narration' (the script text).`}]
+                        messages: [{role: "user", content: `Create a 6-scene script for a video titled "${document.getElementById('autoStatus').innerText}". Include sub nudges in scene 3 and end. Format: JSON array of objects with 'v_prompt' and 'narration'.`}]
                     })
                 });
                 const d = await r.json();
                 scenes = JSON.parse(d.choices[0].message.content.match(/\[.*\]/s)[0]);
-                
                 currentIdx = 0;
                 updatePlayer();
 
-                // Sequential fast generation
                 for(let i=0; i<scenes.length; i++) {
-                    status.innerText = `GENERATING MOTION FOR SCENE ${i+1}...`;
+                    status.innerText = `FILMING SCENE ${i+1}...`;
                     try {
                         const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, {
                             headers: { Authorization: pKey }
@@ -229,30 +244,26 @@
                         } else { throw new Error(); }
                     } catch (e) {
                         scenes[i].mType = 'image';
-                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('8k dramatic ' + scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
+                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('8k ' + scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
                     }
                     if(currentIdx === i) updatePlayer();
                 }
-                
-                btn.innerText = "PRODUCTION COMPLETE";
+                btn.innerText = "READY";
                 btn.classList.remove('loading-pulse');
-                status.innerText = "READY TO BROADCAST";
-
-            } catch(e) { alert("Production Error. Check your Groq key and Topic."); btn.innerText = "RETRY"; }
+                status.innerText = "PRODUCTION COMPLETE";
+            } catch(e) { alert("Error. Check Key."); btn.innerText = "RETRY"; }
         }
 
         function updatePlayer() {
             if(!scenes[currentIdx]) return;
             const s = scenes[currentIdx];
             const box = document.getElementById('mainMediaBox');
-            
             document.getElementById('sceneIndicator').innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
             document.getElementById('currentSceneText').innerText = s.narration;
-            document.getElementById('currentVisualPrompt').innerText = `SEARCHING: ${s.v_prompt.toUpperCase()}`;
-
+            document.getElementById('currentVisualPrompt').innerText = `SEARCH: ${s.v_prompt.toUpperCase()}`;
             box.innerHTML = '';
             if (!s.mUrl) {
-                box.innerHTML = `<div class="flex flex-col items-center gap-2"><div class="animate-spin w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full"></div><span class="text-[8px] tracking-widest opacity-50">SYNCING SCENE ${currentIdx+1}</span></div>`;
+                box.innerHTML = `<div class="animate-pulse">Loading Scene ${currentIdx+1}...</div>`;
             } else if (s.mType === 'video') {
                 box.innerHTML = `<video src="${s.mUrl}" autoplay loop muted playsinline></video>`;
             } else {
@@ -275,7 +286,7 @@
 
         async function playFullSequence() {
             const btn = document.getElementById('playAllBtn');
-            btn.innerText = "Broadcasting Sequence 1 to " + scenes.length + "...";
+            btn.innerText = "Broadcasting Sequence...";
             for(let i=0; i < scenes.length; i++) {
                 currentIdx = i;
                 updatePlayer();
@@ -287,21 +298,14 @@
             btn.innerText = "Play Full Sequential Sequence";
         }
 
-        // NAVIGATION
         function nextScene() { if(currentIdx < scenes.length - 1) { currentIdx++; updatePlayer(); } }
         function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
-        
-        function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
         function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); document.getElementById('nIn').value=""; } }
         function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); localStorage.setItem('myNiches', JSON.stringify(niches)); renderN(); }
         function renderN() {
             document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
                 <div onclick="selN('${n}')" class="sidebar-item ${n===curN?'active-niche':''}">
                     <span>${n}</span>
+                    <span id="activeNText" class="hidden">${n}</span>
                     <span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
-                </div>`).join('');
-        }
-    </script>
-</body>
-    </html>
-    
+            
