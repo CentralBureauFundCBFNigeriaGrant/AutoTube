@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Robust v5.3</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>AutoTube | Ironclad v5.4</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+        @import url('[https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap)');
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         .yt-red { background-color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
@@ -29,7 +29,7 @@
             <div class="w-12 h-8 yt-red rounded flex items-center justify-center shadow-xl shadow-red-900/30">
                 <div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">v5.3 ROBUST</span></h1>
+            <h1 class="text-2xl font-black tracking-tighter uppercase italic">AutoTube <span class="text-[10px] font-bold not-italic text-gray-600 bg-white/5 px-2 py-1 rounded ml-2">v5.4 IRONCLAD</span></h1>
         </div>
     </div>
 
@@ -113,7 +113,7 @@
     </div>
 </body>
 <script>
-    let niches = ["African Folk Tales", "Bible Prophecies", "Modern AI Tech", "Luxury Lifestyle", "Wealth Mindset", "Ancient History"];
+    let niches = ["African Folk Tales", "Bible Prophecies", "Modern AI Tech", "Wealth Mindset", "Ancient History"];
     let curN = niches[0];
     let scenes = []; 
     let currentIdx = 0;
@@ -148,8 +148,7 @@
     }
 
     function selectNiche(n) {
-        synth.cancel();
-        curN = n;
+        synth.cancel(); curN = n;
         document.getElementById('activeNText').innerText = n.toUpperCase();
         renderNicheUI();
     }
@@ -158,28 +157,27 @@
         const input = document.getElementById('nIn');
         const val = input.value.trim();
         if(val) {
-            niches.push(val);
-            localStorage.setItem('myNiches', JSON.stringify(niches));
-            input.value = "";
-            renderNicheUI();
+            niches.push(val); localStorage.setItem('myNiches', JSON.stringify(niches));
+            input.value = ""; renderNicheUI();
         }
     }
 
     function deleteNiche(index, event) {
-        event.stopPropagation();
-        niches.splice(index, 1);
+        event.stopPropagation(); niches.splice(index, 1);
         localStorage.setItem('myNiches', JSON.stringify(niches));
         if(niches.length > 0) curN = niches[0];
         renderNicheUI();
     }
 
+    // --- HARDENED JSON PARSER ---
     function parseCleanJson(rawText) {
         try {
-            const match = rawText.match(/\[\s*\{.*\}\s*\]/s);
+            let clean = rawText.replace(/```json|```/g, "").trim();
+            const match = clean.match(/\[\s*\{.*\}\s*\]/s);
             if (match) return JSON.parse(match[0]);
-            return JSON.parse(rawText);
+            return JSON.parse(clean);
         } catch (e) {
-            console.error("JSON Parse Error:", rawText);
+            console.error("Format Error. Raw:", rawText);
             return null;
         }
     }
@@ -188,22 +186,20 @@
         const g = document.getElementById('ideasGrid');
         const key = document.getElementById('groqKeyIn').value;
         if(!key) return alert("API Key Missing!");
-        g.innerHTML = "<div class='text-center py-4 text-red-600 animate-pulse text-[10px] font-black'>SCANNING TRENDS...</div>";
+        g.innerHTML = "<div class='animate-pulse text-red-600 text-center font-black'>THINKING...</div>";
         try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", 
-                headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
+            const r = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                method: "POST", headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
-                    messages: [{role: "user", content: `5 viral short titles for: ${curN}. Output ONLY clean JSON array of strings.`}]
+                    messages: [{role: "user", content: `5 viral short titles for: ${curN}. JSON ARRAY ONLY. NO TALKING.`}]
                 })
             });
             const d = await r.json();
-            const rawContent = d.choices[0].message.content;
-            const titleMatch = rawContent.match(/\[\s*".*"\s*\]/s) || rawContent.match(/\[.*\]/s);
-            const titles = JSON.parse(titleMatch[0]);
+            const clean = d.choices[0].message.content.replace(/```json|```/g, "").trim();
+            const titles = JSON.parse(clean.match(/\[.*\]/s)[0]);
             g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item hover:border-red-600 bg-black/40 text-[11px]">${t}</div>`).join('');
-        } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px]'>Format Error. Retry Brainstorm.</p>"; }
+        } catch(e) { g.innerHTML = "Retry Brainstorm."; }
     }
 
     function prepStudio(title) {
@@ -227,22 +223,20 @@
         const status = document.getElementById('autoStatus');
         const gKey = document.getElementById('groqKeyIn').value;
         const pKey = document.getElementById('pexelsKeyIn').value;
-        btn.innerText = "🎬 FILMING EPIC...";
+        btn.innerText = "🎬 FILMING...";
         btn.classList.add('loading-pulse');
         try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", 
-                headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
+            const r = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                method: "POST", headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
-                    messages: [{role: "user", content: `20-scene script for "${status.innerText}". Theme: ${curN}. VISUALS: Ancient theme gets 4k historic, Tech gets 8k neon. JSON ONLY: [{"v_prompt": "prompt", "narration": "text"}]`}]
+                    messages: [{role: "user", content: `Create a 20-scene JSON script for "${status.innerText}". Theme: ${curN}. RULES: No preamble. Strictly start with [ and end with ]. Scenes 10 and 20 are Sub nudges.`}]
                 })
             });
             const d = await r.json();
             scenes = parseCleanJson(d.choices[0].message.content);
-            if(!scenes) throw new Error("Format Error");
-            currentIdx = 0;
-            updatePlayer();
+            if(!scenes) throw new Error("Parser Failed");
+            currentIdx = 0; updatePlayer();
             for(let i=0; i<scenes.length; i++) {
                 status.innerText = `FILMING SCENE ${i+1} / 20...`;
                 try {
@@ -258,9 +252,8 @@
                 }
                 if(currentIdx === i) updatePlayer();
             }
-            btn.innerText = "DONE";
-            btn.classList.remove('loading-pulse');
-        } catch(e) { alert("AI sent messy response. Retry Launch."); btn.innerText = "RETRY"; }
+            btn.innerText = "DONE"; btn.classList.remove('loading-pulse');
+        } catch(e) { alert("AI Formatting Error. Retry Launch."); btn.innerText = "RETRY"; }
     }
 
     function updatePlayer() {
@@ -277,7 +270,6 @@
     }
 
     function toggleVideo() { const v = document.getElementById('activeVideo'); if(v) { if(v.paused) v.play(); else v.pause(); } }
-
     function speakActive() {
         if(!scenes[currentIdx]) return;
         if(synth.paused) { synth.resume(); return; }
@@ -288,18 +280,13 @@
         m.pitch = document.getElementById('vPitch').value;
         synth.speak(m);
     }
-
     function pauseSpeech() { if(synth.speaking) synth.pause(); }
-
     async function playFullSequence() {
         for(let i=0; i < scenes.length; i++) {
-            currentIdx = i;
-            updatePlayer();
-            speakActive();
+            currentIdx = i; updatePlayer(); speakActive();
             await new Promise(r => { const check = setInterval(() => { if(!synth.speaking){ clearInterval(check); r(); } }, 500); });
         }
     }
-
     function nextScene() { if(currentIdx < scenes.length - 1) { currentIdx++; updatePlayer(); } }
     function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
 </script>
