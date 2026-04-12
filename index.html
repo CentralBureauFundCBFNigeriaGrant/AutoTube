@@ -10,17 +10,13 @@
         body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         .yt-red { background-color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
-        
         .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 20px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 0 60px rgba(255,0,0,0.3); }
         video, img { width: 100%; height: 100%; object-fit: cover; }
-        
         .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .control-btn:hover { background: #222; border-color: #f00; transform: translateY(-1px); }
-        
         .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 14px; font-size: 11px; margin-bottom: 6px; border: 1px solid transparent; transition: 0.2s; background: #151515; color: #999; text-transform: uppercase; font-weight: 700; }
         .sidebar-item:hover { border-color: #444; color: #fff; background: #1a1a1a; }
         .active-niche { background-color: #272727 !important; border-color: #f00 !important; color: #f00 !important; }
-        
         input[type=range] { accent-color: #f00; cursor: pointer; }
         .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
@@ -38,14 +34,11 @@
     </div>
 
     <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         <div class="lg:col-span-3 space-y-6">
             <div class="card p-6 border-t-4 border-red-600">
                 <h2 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-[0.2em]">1. Global Niches</h2>
                 <p class="text-[9px] text-gray-600 uppercase mb-3 font-bold">Target: <span id="activeNText" class="text-red-600">NONE</span></p>
-                
                 <div id="nicheList" class="max-h-[500px] overflow-y-auto mb-4 space-y-1"></div>
-                
                 <div class="flex gap-2 mb-6">
                     <input id="nIn" type="text" placeholder="Add niche..." class="flex-1 bg-black border border-[#333] rounded-lg p-3 text-xs outline-none focus:border-red-600">
                     <button onclick="addNewNiche()" class="bg-[#272727] px-5 rounded-lg text-white font-bold hover:bg-red-600">+</button>
@@ -53,7 +46,6 @@
                 <button onclick="genIdeas()" class="w-full yt-red py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:brightness-110">Brainstorm Topics</button>
                 <div id="ideasGrid" class="mt-4 space-y-2"></div>
             </div>
-
             <div class="card p-6">
                 <h2 class="text-[10px] font-black text-gray-600 uppercase mb-4 tracking-widest">Master Keys</h2>
                 <div class="space-y-3">
@@ -72,37 +64,28 @@
                     </div>
                     <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-12 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-emerald-500 shadow-2xl transition-all">Launch 20-Scene Epic</button>
                 </div>
-
                 <div class="space-y-8">
                     <div class="player-stage group">
-                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-[10px] uppercase bg-black px-10">
-                            Theater Screen Ready
-                        </div>
-                        
+                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-[10px] uppercase bg-black px-10">Theater Screen Ready</div>
                         <div class="absolute inset-y-0 left-0 flex items-center pl-6 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="prevScene()" class="bg-black/80 p-5 rounded-full border border-white/10 hover:bg-red-600">←</button>
                         </div>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-6 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="nextScene()" class="bg-black/80 p-5 rounded-full border border-white/10 hover:bg-red-600">→</button>
                         </div>
-
                         <div class="absolute top-4 right-4">
                              <span id="sceneIndicator" class="bg-black/90 px-4 py-1.5 rounded-full text-[10px] font-bold text-red-600 border border-white/10 uppercase">Scene 0/20</span>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                         <div class="md:col-span-7 bg-black p-8 rounded-3xl border border-[#222]">
                             <p class="text-[10px] text-gray-500 font-black mb-4 uppercase tracking-[0.3em]">Narration Output</p>
                             <div id="currentSceneText" class="text-lg italic text-white leading-relaxed min-h-[80px]">---</div>
                             <div class="mt-6 pt-6 border-t border-white/5 flex flex-col gap-2">
                                 <div class="text-[10px] text-emerald-700 font-mono uppercase tracking-widest" id="currentVisualPrompt">---</div>
-                                <div class="flex gap-2">
-                                    <button onclick="toggleVideo()" class="bg-[#1a1a1a] p-2 rounded text-[8px] font-black border border-[#333]">VIDEO PLAY/PAUSE</button>
-                                </div>
+                                <div class="flex gap-2"><button onclick="toggleVideo()" class="bg-[#1a1a1a] p-2 rounded text-[8px] font-black border border-[#333]">VIDEO PLAY/PAUSE</button></div>
                             </div>
                         </div>
-
                         <div class="md:col-span-4 flex flex-col gap-4">
                             <div class="bg-black p-6 rounded-3xl border border-[#222] space-y-4">
                                 <select id="voiceSelect" class="w-full bg-transparent text-xs text-red-500 border-none outline-none font-bold uppercase"></select>
@@ -128,217 +111,196 @@
             </div>
         </div>
     </div>
+</body>
+<script>
+    let niches = ["African Folk Tales", "Bible Prophecies", "Modern AI Tech", "Luxury Lifestyle", "Wealth Mindset", "Ancient History"];
+    let curN = niches[0];
+    let scenes = []; 
+    let currentIdx = 0;
+    const synth = window.speechSynthesis;
 
-    <script>
-        let niches = ["African Folk Tales", "Bible Prophecies", "Modern AI Tech", "Luxury Lifestyle", "Wealth Mindset", "Ancient History"];
-        let curN = niches[0];
-        let scenes = []; 
-        let currentIdx = 0;
-        const synth = window.speechSynthesis;
-
-        function initApp() {
-            document.getElementById('groqKeyIn').value = localStorage.getItem('groq_key') || "";
-            document.getElementById('pexelsKeyIn').value = localStorage.getItem('pexels_key') || "";
-            
-            const saved = localStorage.getItem('myNiches');
-            if(saved) {
-                const parsed = JSON.parse(saved);
-                if(parsed.length > 0) niches = parsed;
-            }
-            
-            renderNicheUI();
-            document.getElementById('activeNText').innerText = curN.toUpperCase();
-            setTimeout(loadVoices, 500);
+    function initApp() {
+        document.getElementById('groqKeyIn').value = localStorage.getItem('groq_key') || "";
+        document.getElementById('pexelsKeyIn').value = localStorage.getItem('pexels_key') || "";
+        const saved = localStorage.getItem('myNiches');
+        if(saved) {
+            const parsed = JSON.parse(saved);
+            if(parsed.length > 0) niches = parsed;
         }
+        renderNicheUI();
+        document.getElementById('activeNText').innerText = curN.toUpperCase();
+        setTimeout(loadVoices, 500);
+    }
 
-        function saveKeys() {
-            localStorage.setItem('groq_key', document.getElementById('groqKeyIn').value);
-            localStorage.setItem('pexels_key', document.getElementById('pexelsKeyIn').value);
-        }
+    function saveKeys() {
+        localStorage.setItem('groq_key', document.getElementById('groqKeyIn').value);
+        localStorage.setItem('pexels_key', document.getElementById('pexelsKeyIn').value);
+    }
 
-        function renderNicheUI() {
-            const list = document.getElementById('nicheList');
-            if(!list) return;
-            list.innerHTML = niches.map((n, i) => `
-                <div onclick="selectNiche('${n.replace(/'/g, "\\'")}')" class="sidebar-item ${n === curN ? 'active-niche' : ''}">
-                    <span>${n}</span>
-                    <span onclick="deleteNiche(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
-                </div>`).join('');
-        }
+    function renderNicheUI() {
+        const list = document.getElementById('nicheList');
+        if(!list) return;
+        list.innerHTML = niches.map((n, i) => `
+            <div onclick="selectNiche('${n.replace(/'/g, "\\'")}')" class="sidebar-item ${n === curN ? 'active-niche' : ''}">
+                <span>${n}</span>
+                <span onclick="deleteNiche(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
+            </div>`).join('');
+    }
 
-        function selectNiche(n) {
-            synth.cancel();
-            curN = n;
-            document.getElementById('activeNText').innerText = n.toUpperCase();
-            renderNicheUI();
-        }
+    function selectNiche(n) {
+        synth.cancel();
+        curN = n;
+        document.getElementById('activeNText').innerText = n.toUpperCase();
+        renderNicheUI();
+    }
 
-        function addNewNiche() {
-            const input = document.getElementById('nIn');
-            const val = input.value.trim();
-            if(val) {
-                niches.push(val);
-                localStorage.setItem('myNiches', JSON.stringify(niches));
-                input.value = "";
-                renderNicheUI();
-            }
-        }
-
-        function deleteNiche(index, event) {
-            event.stopPropagation();
-            niches.splice(index, 1);
+    function addNewNiche() {
+        const input = document.getElementById('nIn');
+        const val = input.value.trim();
+        if(val) {
+            niches.push(val);
             localStorage.setItem('myNiches', JSON.stringify(niches));
-            if(niches.length > 0) curN = niches[0];
+            input.value = "";
             renderNicheUI();
         }
+    }
 
-        // --- NEW DEEP-SEARCH PARSER ---
-        function parseCleanJson(rawText) {
-            try {
-                // This regex finds the array starting with [ and ending with ]
-                const match = rawText.match(/\[\s*\{.*\}\s*\]/s);
-                if (match) return JSON.parse(match[0]);
-                
-                // Fallback: try parsing the whole thing if regex fails
-                return JSON.parse(rawText);
-            } catch (e) {
-                console.error("JSON Parse Error:", rawText);
-                return null;
-            }
+    function deleteNiche(index, event) {
+        event.stopPropagation();
+        niches.splice(index, 1);
+        localStorage.setItem('myNiches', JSON.stringify(niches));
+        if(niches.length > 0) curN = niches[0];
+        renderNicheUI();
+    }
+
+    function parseCleanJson(rawText) {
+        try {
+            const match = rawText.match(/\[\s*\{.*\}\s*\]/s);
+            if (match) return JSON.parse(match[0]);
+            return JSON.parse(rawText);
+        } catch (e) {
+            console.error("JSON Parse Error:", rawText);
+            return null;
         }
+    }
 
-        async function genIdeas() {
-            const g = document.getElementById('ideasGrid');
-            const key = document.getElementById('groqKeyIn').value;
-            if(!key) return alert("API Key Missing!");
-            g.innerHTML = "<div class='text-center py-4 text-red-600 animate-pulse text-[10px] font-black'>SCANNING TRENDS...</div>";
-            try {
-                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", 
-                    headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `5 viral short titles for: ${curN}. Output ONLY clean JSON array of strings like ["Title 1", "Title 2"].`}]
-                    })
-                });
-                const d = await r.json();
-                const rawContent = d.choices[0].message.content;
-                
-                // Handle title parsing specifically
-                const titleMatch = rawContent.match(/\[\s*".*"\s*\]/s) || rawContent.match(/\[.*\]/s);
-                const titles = JSON.parse(titleMatch[0]);
-                
-                g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item hover:border-red-600 bg-black/40 text-[11px]">${t}</div>`).join('');
-            } catch(e) { 
-                console.error(e);
-                g.innerHTML = "<p class='text-red-500 text-[10px]'>Format Error. Click 'Brainstorm' again.</p>"; 
-            }
-        }
+    async function genIdeas() {
+        const g = document.getElementById('ideasGrid');
+        const key = document.getElementById('groqKeyIn').value;
+        if(!key) return alert("API Key Missing!");
+        g.innerHTML = "<div class='text-center py-4 text-red-600 animate-pulse text-[10px] font-black'>SCANNING TRENDS...</div>";
+        try {
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", 
+                headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
+                body: JSON.stringify({
+                    model: "llama-3.1-8b-instant", 
+                    messages: [{role: "user", content: `5 viral short titles for: ${curN}. Output ONLY clean JSON array of strings.`}]
+                })
+            });
+            const d = await r.json();
+            const rawContent = d.choices[0].message.content;
+            const titleMatch = rawContent.match(/\[\s*".*"\s*\]/s) || rawContent.match(/\[.*\]/s);
+            const titles = JSON.parse(titleMatch[0]);
+            g.innerHTML = titles.map(t => `<div onclick="prepStudio('${t.replace(/'/g, "\\'")}')" class="sidebar-item hover:border-red-600 bg-black/40 text-[11px]">${t}</div>`).join('');
+        } catch(e) { g.innerHTML = "<p class='text-red-500 text-[10px]'>Format Error. Retry Brainstorm.</p>"; }
+    }
 
-        function prepStudio(title) {
-            document.getElementById('autoStatus').innerText = title.toUpperCase();
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
+    function prepStudio(title) {
+        document.getElementById('autoStatus').innerText = title.toUpperCase();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
 
-        function loadVoices() {
-            const vS = document.getElementById('voiceSelect');
-            const voices = synth.getVoices();
-            if(!voices.length) { setTimeout(loadVoices, 300); return; }
-            vS.innerHTML = voices.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
-        }
+    function loadVoices() {
+        const vS = document.getElementById('voiceSelect');
+        const voices = synth.getVoices();
+        if(!voices.length) { setTimeout(loadVoices, 300); return; }
+        vS.innerHTML = voices.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
+    }
 
-        function cleanScript(text) {
-            return text.replace(/Scene \d+:?|\[S\d+\]|#+|\(.*?\)/gi, "").replace(/\*\*/g, "").trim();
-        }
+    function cleanScript(text) {
+        return text.replace(/Scene \d+:?|\[S\d+\]|#+|\(.*?\)/gi, "").replace(/\*\*/g, "").trim();
+    }
 
-        async function genFullProduction() {
-            const btn = document.getElementById('prodBtn');
-            const status = document.getElementById('autoStatus');
-            const gKey = document.getElementById('groqKeyIn').value;
-            const pKey = document.getElementById('pexelsKeyIn').value;
-
-            btn.innerText = "🎬 FILMING EPIC...";
-            btn.classList.add('loading-pulse');
-
-            try {
-                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", 
-                    headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `20-scene script for "${status.innerText}". Theme: ${curN}. 
-                        STYLING:
-                        - If Ancient/Tales/Bible: use "cinematic 4k authentic historical, no modern technology".
-                        - If Tech: use "8k futuristic, sleek technology".
-                        - Scene 10: "Subscribe nudge". Scene 20: "Like and subscribe!"
-                        Output ONLY JSON: [{"v_prompt": "visual prompt", "narration": "Full story text"}]`}]
-                    })
-                });
-                const d = await r.json();
-                const rawContent = d.choices[0].message.content;
-                
-                scenes = parseCleanJson(rawContent);
-                if(!scenes) throw new Error("Format Error");
-
-                currentIdx = 0;
-                updatePlayer();
-
-                for(let i=0; i<scenes.length; i++) {
-                    status.innerText = `FILMING SCENE ${i+1} / 20...`;
-                    try {
-                        const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, {
-                            headers: { Authorization: pKey }
-                        });
-                        const pData = await res.json();
-                        if (pData.videos?.length > 0) {
-                            scenes[i].mType = 'video';
-                            scenes[i].mUrl = pData.videos[0].video_files.find(f => f.width >= 1280)?.link || pData.videos[0].video_files[0].link;
-                        } else { throw new Error(); }
-                    } catch (e) {
-                        scenes[i].mType = 'image';
-                        scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
-                    }
-                    if(currentIdx === i) updatePlayer();
+    async function genFullProduction() {
+        const btn = document.getElementById('prodBtn');
+        const status = document.getElementById('autoStatus');
+        const gKey = document.getElementById('groqKeyIn').value;
+        const pKey = document.getElementById('pexelsKeyIn').value;
+        btn.innerText = "🎬 FILMING EPIC...";
+        btn.classList.add('loading-pulse');
+        try {
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", 
+                headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
+                body: JSON.stringify({
+                    model: "llama-3.1-8b-instant", 
+                    messages: [{role: "user", content: `20-scene script for "${status.innerText}". Theme: ${curN}. VISUALS: Ancient theme gets 4k historic, Tech gets 8k neon. JSON ONLY: [{"v_prompt": "prompt", "narration": "text"}]`}]
+                })
+            });
+            const d = await r.json();
+            scenes = parseCleanJson(d.choices[0].message.content);
+            if(!scenes) throw new Error("Format Error");
+            currentIdx = 0;
+            updatePlayer();
+            for(let i=0; i<scenes.length; i++) {
+                status.innerText = `FILMING SCENE ${i+1} / 20...`;
+                try {
+                    const res = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(scenes[i].v_prompt)}&per_page=1`, { headers: { Authorization: pKey } });
+                    const pData = await res.json();
+                    if (pData.videos?.length > 0) {
+                        scenes[i].mType = 'video';
+                        scenes[i].mUrl = pData.videos[0].video_files.find(f => f.width >= 1280)?.link || pData.videos[0].video_files[0].link;
+                    } else { throw new Error(); }
+                } catch (e) {
+                    scenes[i].mType = 'image';
+                    scenes[i].mUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scenes[i].v_prompt)}?width=1280&height=720&nologo=true`;
                 }
-                btn.innerText = "DONE";
-                btn.classList.remove('loading-pulse');
-            } catch(e) { 
-                console.error(e);
-                alert("Production Error. The AI sent a messy response. Please click 'Launch' again."); 
-                btn.innerText = "RETRY";
+                if(currentIdx === i) updatePlayer();
             }
+            btn.innerText = "DONE";
+            btn.classList.remove('loading-pulse');
+        } catch(e) { alert("AI sent messy response. Retry Launch."); btn.innerText = "RETRY"; }
+    }
+
+    function updatePlayer() {
+        if(!scenes[currentIdx]) return;
+        const s = scenes[currentIdx];
+        const box = document.getElementById('mainMediaBox');
+        document.getElementById('sceneIndicator').innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
+        document.getElementById('currentSceneText').innerText = cleanScript(s.narration);
+        document.getElementById('currentVisualPrompt').innerText = "VISUAL: " + s.v_prompt;
+        box.innerHTML = '';
+        if (!s.mUrl) { box.innerHTML = `<div class="animate-pulse text-[8px] uppercase tracking-widest">Building Scene...</div>`; }
+        else if (s.mType === 'video') { box.innerHTML = `<video id="activeVideo" src="${s.mUrl}" autoplay loop muted playsinline></video>`; }
+        else { box.innerHTML = `<img src="${s.mUrl}">`; }
+    }
+
+    function toggleVideo() { const v = document.getElementById('activeVideo'); if(v) { if(v.paused) v.play(); else v.pause(); } }
+
+    function speakActive() {
+        if(!scenes[currentIdx]) return;
+        if(synth.paused) { synth.resume(); return; }
+        synth.cancel();
+        const m = new SpeechSynthesisUtterance(cleanScript(scenes[currentIdx].narration));
+        m.voice = synth.getVoices().find(v => v.name === document.getElementById('voiceSelect').value);
+        m.rate = document.getElementById('vRate').value;
+        m.pitch = document.getElementById('vPitch').value;
+        synth.speak(m);
+    }
+
+    function pauseSpeech() { if(synth.speaking) synth.pause(); }
+
+    async function playFullSequence() {
+        for(let i=0; i < scenes.length; i++) {
+            currentIdx = i;
+            updatePlayer();
+            speakActive();
+            await new Promise(r => { const check = setInterval(() => { if(!synth.speaking){ clearInterval(check); r(); } }, 500); });
         }
+    }
 
-        function updatePlayer() {
-            if(!scenes[currentIdx]) return;
-            const s = scenes[currentIdx];
-            const box = document.getElementById('mainMediaBox');
-            document.getElementById('sceneIndicator').innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
-            document.getElementById('currentSceneText').innerText = cleanScript(s.narration);
-            document.getElementById('currentVisualPrompt').innerText = "VISUAL: " + s.v_prompt;
-            box.innerHTML = '';
-            if (!s.mUrl) {
-                box.innerHTML = `<div class="animate-pulse text-[8px] uppercase tracking-widest">Building Scene...</div>`;
-            } else if (s.mType === 'video') {
-                box.innerHTML = `<video id="activeVideo" src="${s.mUrl}" autoplay loop muted playsinline></video>`;
-            } else {
-                box.innerHTML = `<img src="${s.mUrl}">`;
-            }
-        }
-
-        function toggleVideo() { const v = document.getElementById('activeVideo'); if(v) { if(v.paused) v.play(); else v.pause(); } }
-
-        function speakActive() {
-            if(!scenes[currentIdx]) return;
-            if(synth.paused) { synth.resume(); return; }
-            synth.cancel();
-            const m = new SpeechSynthesisUtterance(cleanScript(scenes[currentIdx].narration));
-            m.voice = synth.getVoices().find(v => v.name === document.getElementById('voiceSelect').value);
-            m.rate = document.getElementById('vRate').value;
-            m.pitch = document.getElementById('vPitch').value;
-            synth.speak(m);
-        }
-
-        function pauseSpeech() { if(synth.speaking) synth.pause(); }
-
-        async functi
+    function nextScene() { if(currentIdx < scenes.length - 1) { currentIdx++; updatePlayer(); } }
+    function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
+</script>
+</html>
