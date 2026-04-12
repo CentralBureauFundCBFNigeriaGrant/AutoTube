@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | YouTube Red Edition</title>
+    <title>AutoTube | Pro Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
-        body { background-color: #000000; color: #ffffff; font-family: 'Roboto', sans-serif; }
-        .yt-red { background-color: #FF0000; }
-        .yt-red-text { color: #FF0000; }
+        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        .yt-red { background-color: #f00; }
+        .yt-red-text { color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
-        .sidebar-item { border-radius: 8px; transition: 0.2s; cursor: pointer; border: 1px solid transparent; display: flex; justify-content: space-between; align-items: center; padding: 12px; }
+        .sidebar-item { border-radius: 8px; transition: 0.2s; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px; font-size: 13px; }
         .sidebar-item:hover { background-color: #272727; }
-        .active-niche { background-color: #272727; border-left: 4px solid #FF0000; color: #FF0000; font-weight: bold; }
+        .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
         .timeline-box { min-width: 280px; background-color: #121212; border: 1px solid #282828; border-radius: 12px; padding: 15px; }
-        .pulse-mic { animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } }
-        ::-webkit-scrollbar { height: 6px; background: #000; }
+        .pulse-red { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } }
+        ::-webkit-scrollbar { height: 5px; background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="p-2 md:p-6">
+<body class="p-3 md:p-6">
 
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -34,74 +34,67 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="text-[11px] font-bold text-gray-400 uppercase mb-4 tracking-widest">Voice Lab</h2>
-                <button id="recBtn" onclick="handleMic()" class="w-full border border-[#333] py-3 rounded-xl text-xs font-bold hover:bg-[#272727] flex items-center justify-center gap-2">
+                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Voice DNA</h2>
+                <button id="recBtn" onclick="handleMic()" class="w-full border border-[#333] py-3 rounded-xl text-[11px] font-bold hover:bg-[#272727] flex items-center justify-center gap-2">
                     <div id="micDot" class="w-2 h-2 bg-gray-600 rounded-full"></div> 
-                    <span id="recText">RECORD VOICE DNA</span>
+                    <span id="recText">RECORD DNA</span>
                 </button>
-                
-                <div id="vPlayback" class="hidden mt-4 space-y-3">
+                <div id="vPlayback" class="hidden mt-4 space-y-2">
                     <audio id="vAudio" controls class="h-8 w-full"></audio>
                     <div class="flex gap-2">
-                        <button onclick="saveV()" class="flex-1 bg-emerald-600 text-[10px] py-2 rounded-lg font-bold">SAVE</button>
-                        <button onclick="discardV()" class="flex-1 bg-zinc-800 text-[10px] py-2 rounded-lg font-bold uppercase">Discard</button>
+                        <button onclick="saveV()" class="flex-1 bg-emerald-700 text-[10px] py-2 rounded-lg font-bold">SAVE</button>
+                        <button onclick="discardV()" class="flex-1 bg-zinc-800 text-[10px] py-2 rounded-lg font-bold">TRASH</button>
                     </div>
                 </div>
-                
-                <input id="vIdInput" type="text" placeholder="ElevenLabs Voice ID" class="w-full bg-[#000] border border-[#282828] rounded-xl p-3 text-xs mt-4 text-red-500 font-mono">
+                <input id="hfKey" type="password" placeholder="HF Token (Free Key)" class="w-full bg-black border border-[#282828] rounded-xl p-3 text-[10px] mt-4 text-emerald-500 font-mono">
+                <p class="text-[9px] text-gray-600 mt-2 px-1">Using Hugging Face for free voices.</p>
             </div>
 
             <div class="card p-5">
-                <h2 class="text-[11px] font-bold text-gray-400 uppercase mb-4">Channel Niches</h2>
+                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Niches</h2>
                 <div id="nicheList" class="space-y-1"></div>
                 <div class="flex gap-2 mt-4">
-                    <input id="nIn" type="text" placeholder="Add niche..." class="w-full bg-[#000] border border-[#282828] rounded-lg p-2 text-xs">
+                    <input id="nIn" type="text" placeholder="Add..." class="w-full bg-black border border-[#282828] rounded-lg p-2 text-xs">
                     <button onclick="addN()" class="bg-[#272727] px-4 rounded-lg text-white font-bold">+</button>
                 </div>
             </div>
         </div>
 
         <div class="lg:col-span-9 space-y-6">
-            
             <div class="card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-red-600">
                 <div>
                     <h2 class="text-2xl font-black">Content Engine</h2>
-                    <p class="text-xs text-gray-500 uppercase tracking-widest">Active: <span id="activeNText" class="yt-red-text font-bold"></span></p>
+                    <p class="text-[10px] text-gray-500 uppercase">Active Niche: <span id="activeNText" class="yt-red-text font-bold"></span></p>
                 </div>
-                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all shadow-xl shadow-red-900/20">
-                    GENERATE VIRAL IDEAS
+                <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all">
+                    GENERATE IDEAS
                 </button>
             </div>
 
             <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
             <div id="studioRoom" class="hidden card p-6 border-t-2 border-red-600 shadow-2xl">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <h2 class="text-sm font-black flex items-center gap-2">
-                        <span class="w-2 h-2 yt-red rounded-full animate-pulse"></span> PRODUCTION STUDIO
-                    </h2>
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-[10px] font-black tracking-widest">PRODUCTION STUDIO</h2>
                     <div class="flex gap-3">
-                        <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider">1. Write Script</button>
-                        <button onclick="syncVoice()" id="vBtn" class="yt-red px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider">2. Sync Voice</button>
+                        <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-6 py-2 rounded-xl text-[10px] font-black uppercase">1. Script</button>
+                        <button onclick="syncVoice()" id="vBtn" class="yt-red px-6 py-2 rounded-xl text-[10px] font-black uppercase">2. Sync Voice</button>
                     </div>
                 </div>
-                
                 <div class="flex overflow-x-auto gap-5 pb-6 mb-6" id="timeline"></div>
-                
-                <div class="bg-black p-5 rounded-2xl border border-[#282828]">
-                    <p class="text-[10px] text-gray-500 font-bold mb-3 tracking-widest uppercase">Full Script Output</p>
-                    <div id="scriptOut" class="text-xs text-gray-300 font-mono h-32 overflow-y-auto leading-relaxed italic"></div>
+                <div class="bg-black p-4 rounded-xl border border-[#282828]">
+                    <div id="scriptOut" class="text-xs text-gray-400 font-mono h-32 overflow-y-auto leading-relaxed"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         const GROQ_KEY = "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"; 
-        const EL_KEY = "sk_e8fab383f77e7b76a0e0c4b5ad882e2000881811be4c5f22"; 
+        // We'll use Hugging Face for free TTS now
+        const DEFAULT_HF_MODEL = "facebook/mms-tts-eng"; 
 
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business", "Finance"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business"];
         let curN = niches[0];
         let scenes = [];
         let recorder;
@@ -109,36 +102,33 @@
 
         function init() { renderN(); selN(curN); }
 
-        // --- MIC LOGIC ---
+        // --- MIC ---
         async function handleMic() {
             const btn = document.getElementById('recBtn');
             const dot = document.getElementById('micDot');
-            const txt = document.getElementById('recText');
             if (!recorder || recorder.state === "inactive") {
-                try {
-                    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    recorder = new MediaRecorder(s);
-                    chunks = [];
-                    recorder.ondataavailable = (e) => chunks.push(e.data);
-                    recorder.onstop = () => {
-                        const b = new Blob(chunks, { type: 'audio/mpeg' });
-                        document.getElementById('vAudio').src = URL.createObjectURL(b);
-                        document.getElementById('vPlayback').classList.remove('hidden');
-                    };
-                    recorder.start();
-                    btn.classList.add('pulse-mic', 'border-red-600');
-                    dot.classList.replace('bg-gray-600', 'bg-red-600');
-                    txt.innerText = "RECORDING LIVE...";
-                } catch (e) { alert("Mic Permission Denied"); }
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recorder = new MediaRecorder(s);
+                chunks = [];
+                recorder.ondataavailable = (e) => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const b = new Blob(chunks, { type: 'audio/mpeg' });
+                    document.getElementById('vAudio').src = URL.createObjectURL(b);
+                    document.getElementById('vPlayback').classList.remove('hidden');
+                };
+                recorder.start();
+                btn.classList.add('pulse-red', 'border-red-600');
+                dot.classList.replace('bg-gray-600', 'bg-red-600');
+                document.getElementById('recText').innerText = "RECORDING...";
             } else {
                 recorder.stop();
-                btn.classList.remove('pulse-mic', 'border-red-600');
+                btn.classList.remove('pulse-red', 'border-red-600');
                 dot.classList.replace('bg-red-600', 'bg-emerald-500');
-                txt.innerText = "DNA CAPTURED";
+                document.getElementById('recText').innerText = "CAPTURED";
             }
         }
-        function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD VOICE DNA"; }
-        function saveV() { alert("Voice Profile Saved!"); document.getElementById('vPlayback').classList.add('hidden'); }
+        function discardV() { document.getElementById('vPlayback').classList.add('hidden'); document.getElementById('recText').innerText = "RECORD DNA"; }
+        function saveV() { alert("Voice Saved Locally!"); document.getElementById('vPlayback').classList.add('hidden'); }
 
         // --- NICHES ---
         function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); } }
@@ -150,70 +140,69 @@
                     <span>${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500">🗑️</span>
                 </div>`).join('');
         }
-        function selN(n) { curN = n; document.getElementById('activeNText').innerText = n; renderN(); }
+        function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
 
-        // --- GENERATION ENGINE ---
+        // --- ENGINE ---
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
-            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Fetching viral concepts...</p>";
-            try {
-                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 high-CTR YouTube Short titles for ${curN}. Return ONLY a raw JSON array: ["Title 1", "Title 2"]`}]})
-                });
-                const d = await r.json();
-                let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
-                const t = JSON.parse(txt);
-                g.innerHTML = t.map(x => `
-                    <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
-                        <h3 class="font-bold text-sm leading-tight">${x}</h3>
-                        <p class="text-[9px] yt-red-text mt-3 font-black tracking-widest">START PRODUCTION →</p>
-                    </div>`).join('');
-            } catch (e) { g.innerHTML = "<p class='p-5 text-red-600'>API Error. Try Again.</p>"; }
+            g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Thinking...</p>";
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 viral short titles for ${curN}. Return ONLY raw JSON array: ["Title 1", "Title 2"]`}]})
+            });
+            const d = await r.json();
+            let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
+            const t = JSON.parse(txt);
+            g.innerHTML = t.map(x => `
+                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer transition-all">
+                    <h3 class="font-bold text-sm">${x}</h3>
+                    <p class="text-[9px] yt-red-text mt-3 font-black">PRODUCE →</p>
+                </div>`).join('');
         }
 
         function openStudio(t) { 
             document.getElementById('studioRoom').classList.remove('hidden'); 
-            document.getElementById('timeline').innerHTML = `<div class='p-10 text-gray-500 text-xs italic'>Studio loaded for: ${t}</div>`;
+            document.getElementById('timeline').innerHTML = `<div class='p-10 text-gray-500 text-xs italic'>Studio Ready: ${t}</div>`;
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); 
         }
 
         async function genScript() {
-            const btn = document.getElementById('sBtn'); btn.innerText = "WRITING...";
-            try {
-                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
-                    body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Write a 4 part script for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
-                });
-                const d = await r.json();
-                const s = d.choices[0].message.content;
-                document.getElementById('scriptOut').innerText = s;
-                scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
-                document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
-                    <div class="timeline-box">
-                        <p class="text-[10px] text-gray-500 font-black mb-2">SCENE ${i+1}</p>
-                        <p class="text-[11px] text-white leading-relaxed line-clamp-3 italic">"${x.trim()}"</p>
-                        <div id="v-slot-${i}" class="mt-4 bg-black p-3 rounded-lg border border-[#282828] text-[9px] text-gray-500">🎙️ Awaiting Sync...</div>
-                    </div>`).join('');
-            } catch(e) { alert("Script Error"); }
-            btn.innerText = "1. WRITE SCRIPT";
+            const btn = document.getElementById('sBtn'); btn.innerText = "...";
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Write 4 lines for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
+            });
+            const d = await r.json();
+            const s = d.choices[0].message.content;
+            document.getElementById('scriptOut').innerText = s;
+            scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
+            document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
+                <div class="timeline-box">
+                    <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
+                    <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
+                    <div id="v-slot-${i}" class="mt-4 bg-black p-3 rounded-lg border border-[#282828] text-[9px] text-gray-600 italic">Waiting for sync...</div>
+                </div>`).join('');
+            btn.innerText = "1. SCRIPT";
         }
 
         async function syncVoice() {
-            const vid = document.getElementById('vIdInput').value || "pNInz6obpgnuMsc3W95Q";
+            const hfToken = document.getElementById('hfKey').value;
+            if(!hfToken) { alert("Please enter your Free Hugging Face Token first!"); return; }
+            
             const btn = document.getElementById('vBtn'); btn.innerText = "SYNCING...";
             for(let i=0; i<scenes.length; i++) {
                 const slot = document.getElementById(`v-slot-${i}`);
-                slot.innerHTML = "<span class='yt-red-text animate-pulse font-bold'>DNA SYNCHRONIZING...</span>";
+                slot.innerHTML = "<span class='yt-red-text animate-pulse font-bold'>GENERATING AUDIO...</span>";
                 try {
-                    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}`, {
-                        method: "POST", headers: {"xi-api-key": EL_KEY, "Content-Type": "application/json"},
-                        body: JSON.stringify({text: scenes[i].trim(), model_id: "eleven_monolingual_v1"})
+                    const r = await fetch(`https://api-inference.huggingface.co/models/${DEFAULT_HF_MODEL}`, {
+                        method: "POST", 
+                        headers: {"Authorization": `Bearer ${hfToken}`, "Content-Type": "application/json"},
+                        body: JSON.stringify({inputs: scenes[i].trim()})
                     });
                     const b = await r.blob();
-                    if(b.size < 200) throw new Error();
+                    if(b.size < 500) throw new Error("API Limit or Error");
                     slot.innerHTML = `<audio controls class="h-7 w-full"><source src="${URL.createObjectURL(b)}"></audio>`;
-                } catch(e) { slot.innerText = "Sync Error (Check Key/ID)"; }
+                } catch(e) { slot.innerText = "Sync Error - Check Token"; }
             }
             btn.innerText = "2. SYNC VOICE";
         }
@@ -221,4 +210,5 @@
         init();
     </script>
 </body>
-</html>
+    </html>
+    
