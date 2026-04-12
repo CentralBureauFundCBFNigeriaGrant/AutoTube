@@ -201,8 +201,143 @@
                 </div>`).join('');
             btn.innerText = "1. SCRIPT";
         }
+    const GROQ_KEY = "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"; 
+    let niches = JSON.parse(localStorage.getItem('myNiches')) || ["AI Business"];
+    let curN = niches[0];
+    let scenes = [];
+    const synth = window.speechSynthesis;
 
-        init();
+    // --- ENHANCED VOICE LOADING ---
+    function loadVoices() {
+        const select = document.getElementById('voiceSelect');
+        const voices = synth.getVoices();
+        
+        if (voices.length === 0) return;
+
+        // Clear and reload
+        select.innerHTML = voices
+            .sort((a, b) => a.lang.localeCompare(b.lang))
+            .map(v => `<option value="${v.name}" data-lang="${v.lang}">[${v.lang.toUpperCase()}] ${v.name}</option>`)
+            .join('');
+            
+        console.log("Voices Loaded:", voices.length);
+    }
+
+    // Critical for Mobile: Chrome and Safari load voices asynchronously
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    // Initial load attempt
+    window.onload = () => { setTimeout(loadVoices, 500); init(); };
+
+    function init() { renderN(); selN(curN); }
+
+    // --- VOICE ENGINE CONTROLS ---
+    function pauseVoice() { synth.pause(); }
+    function resumeVoice() { synth.resume(); }
+    function stopVoice() { synth.cancel(); }
+
+    function speakLine(index) {
+        synth.cancel(); // Stop any previous speech immediately
+        
+        const textToSpeak = scenes[index].trim();
+        const msg = new SpeechSynthesisUtterance(textToSpeak);
+        
+        const select = document.getElementById('voiceSelect');
+        const selectedOption = select.options[select.selectedIndex];
+        const voices = synth.getVoices();
+        
+        // FIND THE VOICE OBJECT
+        const targetVoice = voices.find(v => v.name === select.value);
+        
+        if (targetVoice) {
+            msg.voice = targetVoice;
+            msg.lang = targetVoice.lang; // FORCE the language code (Essential for Mobile)
+        }
+
+        // Apply Speed and Pitch
+        msg.rate = document.getElementById('rateRange').value;
+        msg.pitch = document.getElementById('pitchRange').value;
+
+        // OnEnd Logic
+        msg.onend = () => console.log("Finished scene " + index);
+        
+        synth.speak(msg);
+    }
+
+    async function syncVoice() {
+        const btn = document.getElementById('vBtn'); 
+        btn.innerText = "SYNCING...";
+        for(let i=0; i<scenes.length; i++) {
+            speakLine(i);
+            // Wait for this specific line to finish before moving to the next
+            await new Promise(r => {
+                const check = setInterval(() => {
+                    if(!synth.speaking) { clearInterval(check); r(); }
+                }, 300);
+            });
+        }
+        btn.innerText = "2. SYNC VOICE";
+    }
+
+    // --- DASHBOARD LOGIC ---
+    function addN() { const v = document.getElementById('nIn').value.trim(); if(v){ niches.push(v); saveN(); renderN(); } }
+    function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
+    function saveN() { localStorage.setItem('myNiches', JSON.stringify(niches)); }
+    function renderN() {
+        document.getElementById('nicheList').innerHTML = niches.map((n, i) => `
+            <div onclick="selN('${n}')" class="sidebar-item cursor-pointer p-3 rounded-lg flex justify-between items-center ${n===curN?'active-niche':''} hover:bg-[#272727] mb-1">
+                <span class="text-xs">${n}</span><span onclick="delN(${i},event)" class="text-gray-600 hover:text-red-500 text-xs">🗑️</span>
+            </div>`).join('');
+    }
+    function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
+
+    async function genIdeas() {
+        const g = document.getElementById('ideasGrid');
+        g.innerHTML = "<p class='p-10 text-gray-600 text-center col-span-2 italic animate-pulse'>Brainstorming...</p>";
+        try {
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `5 short viral titles for ${curN}. JSON only: ["T1", "T2"]`}]})
+            });
+            const d = await r.json();
+            let txt = d.choices[0].message.content.replace(/```json/gi, '').replace(/```/gi, '').trim();
+            const t = JSON.parse(txt);
+            g.innerHTML = t.map(x => `
+                <div onclick="openStudio('${x.replace(/'/g, "\\'")}')" class="card p-5 hover:border-red-600 cursor-pointer">
+                    <h3 class="font-bold text-sm">${x}</h3>
+                    <p class="text-[9px] text-red-600 mt-3 font-black uppercase">Start Production →</p>
+                </div>`).join('');
+        } catch(e) { g.innerHTML = "<p class='p-5 text-red-500'>Connection error. Try again.</p>"; }
+    }
+
+    function openStudio(t) { document.getElementById('studioRoom').classList.remove('hidden'); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+
+    async function genScript() {
+        const btn = document.getElementById('sBtn'); btn.innerText = "...";
+        try {
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: {"Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json"},
+                body: JSON.stringify({model: "llama-3.1-8b-instant", messages: [{role: "user", content: `Write 4 short scenes for ${curN}. Format: [S1] text [S2] text [S3] text [S4] text.`}]})
+            });
+            const d = await r.json();
+            const s = d.choices[0].message.content;
+            document.getElementById('scriptOut').innerText = s;
+            scenes = s.split(/\[S\d\]/i).filter(x => x.trim().length > 5);
+            document.getElementById('timeline').innerHTML = scenes.map((x, i) => `
+                <div class="timeline-box">
+                    <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Scene ${i+1}</p>
+                    <p class="text-[11px] text-white line-clamp-3 italic">"${x.trim()}"</p>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="speakLine(${i})" class="flex-1 yt-red py-2 rounded-lg text-[10px] font-bold">▶ PLAY</button>
+                        <button onclick="pauseVoice()" class="flex-1 bg-zinc-800 py-2 rounded-lg text-[10px] font-bold">⏸ PAUSE</button>
+                    </div>
+                </div>`).join('');
+        } catch(e) { alert("Script generation failed."); }
+        btn.innerText = "1. SCRIPT";
+    }
+</script>
+
     </script>
 </body>
     </html>
