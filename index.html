@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoTube | Cinematic Studio v3.0</title>
+    <title>AutoTube | Director Studio v3.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -15,17 +15,16 @@
         .active-niche { background-color: #272727; border-left: 4px solid #f00; color: #f00; font-weight: bold; }
         
         /* The Cinematic Player */
-        .player-stage { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .player-stage { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; border: 1px solid #333; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         video, img { width: 100%; height: 100%; object-fit: cover; }
-        .scene-nav-btn { background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); padding: 12px; border-radius: 50%; color: white; transition: 0.3s; border: 1px solid #444; }
-        .scene-nav-btn:hover { background: #f00; border-color: #f00; }
+        .scene-nav-btn { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 15px; border-radius: 50%; color: white; transition: 0.3s; border: 1px solid #444; z-index: 10; }
+        .scene-nav-btn:hover { background: #f00; border-color: #f00; transform: scale(1.1); }
         
         .key-input { background: #000; border: 1px solid #333; color: #666; font-size: 10px; padding: 6px; border-radius: 6px; width: 100%; outline: none; }
         .key-input:focus { border-color: #f00; color: #fff; }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 4px; height: 4px; background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 10px; padding: 12px; }
+        .control-btn:hover { background: #222; border-color: #555; }
     </style>
 </head>
 <body class="p-3 md:p-6" onload="init()">
@@ -60,7 +59,7 @@
             <div class="card p-5 border-t-2 border-red-600">
                 <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Master Keys</h2>
                 <div class="space-y-3">
-                    <input id="groqKeyIn" type="password" class="key-input" onchange="saveKeys()" placeholder="Groq Key (gsk_...)">
+                    <input id="groqKeyIn" type="password" class="key-input" onchange="saveKeys()" placeholder="Groq Key">
                     <input id="pexelsKeyIn" type="password" class="key-input" onchange="saveKeys()" placeholder="Pexels Key">
                 </div>
             </div>
@@ -71,7 +70,7 @@
             <div class="card p-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-red-600">
                 <div>
                     <h2 class="text-2xl font-black tracking-tight">CONTENT ENGINE</h2>
-                    <p class="text-[10px] text-gray-500 uppercase">Current Niche: <span id="activeNText" class="text-red-600"></span></p>
+                    <p class="text-[10px] text-gray-500 uppercase">Focus: <span id="activeNText" class="text-red-600"></span></p>
                 </div>
                 <button onclick="genIdeas()" class="yt-red px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all shadow-xl">GENERATE IDEAS</button>
             </div>
@@ -85,13 +84,13 @@
                         <h2 class="text-[10px] font-black tracking-widest uppercase">Cinematic Stage</h2>
                         <div class="flex gap-2">
                             <button onclick="genScript()" id="sBtn" class="bg-[#272727] px-4 py-2 rounded-lg text-[9px] font-black uppercase">1. Write Script</button>
-                            <button onclick="playFullSequence()" id="playAllBtn" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black uppercase">2. Play Sequence</button>
+                            <button onclick="playFullSequence()" id="playAllBtn" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black uppercase">2. Play Full Video</button>
                         </div>
                     </div>
 
                     <div class="player-stage group">
-                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-xl italic">
-                            READY TO LOAD SCENES
+                        <div id="mainMediaBox" class="w-full h-full flex items-center justify-center text-gray-800 font-black text-xl italic bg-[#050505]">
+                            LOAD SCRIPT TO START
                         </div>
                         
                         <div class="absolute inset-y-0 left-0 flex items-center pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -101,19 +100,23 @@
                             <button onclick="nextScene()" class="scene-nav-btn">→</button>
                         </div>
                         
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 px-4 py-2 rounded-full border border-white/10">
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/90 px-4 py-2 rounded-full border border-white/10">
                             <span id="sceneIndicator" class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Scene 0 / 0</span>
                         </div>
                     </div>
 
                     <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="md:col-span-2 bg-black p-4 rounded-xl border border-[#282828]">
-                            <p class="text-[9px] text-gray-500 font-bold mb-2 uppercase">Scene Narration</p>
-                            <div id="currentSceneText" class="text-sm italic leading-relaxed text-gray-300">"Select or generate a script to begin..."</div>
+                        <div class="md:col-span-2 bg-black p-5 rounded-xl border border-[#282828]">
+                            <p class="text-[9px] text-gray-500 font-bold mb-2 uppercase tracking-tighter">Current Narration</p>
+                            <div id="currentSceneText" class="text-sm italic leading-relaxed text-white">"Generating viral scripture..."</div>
                         </div>
+                        
                         <div class="flex flex-col gap-2">
-                            <button id="genMotionBtn" onclick="genActiveVisual()" class="flex-1 bg-white text-black font-black text-[10px] rounded-xl uppercase py-4">Generate Motion</button>
-                            <button onclick="speakActive()" class="flex-1 border border-[#333] text-white font-black text-[10px] rounded-xl uppercase">Preview Audio</button>
+                            <button id="genMotionBtn" onclick="genActiveVisual()" class="control-btn bg-white text-black">Generate Motion</button>
+                            <div class="flex gap-2">
+                                <button onclick="speakActive()" class="flex-1 control-btn text-white">Play</button>
+                                <button onclick="pauseSpeech()" class="flex-1 control-btn text-white">Pause</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,9 +125,9 @@
     </div>
 
     <script>
-        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Success Mindset"];
+        let niches = JSON.parse(localStorage.getItem('myNiches')) || ["Bible Stories", "Tech News"];
         let curN = niches[0];
-        let scenes = []; // Array of { text: "", keywords: "", mediaType: "", mediaUrl: "" }
+        let scenes = []; 
         let currentIdx = 0;
         const synth = window.speechSynthesis;
 
@@ -147,18 +150,20 @@
                 .map(v => `<option value="${v.name}">${v.name.includes('Google') ? '⭐ ' : ''}[${v.lang}] ${v.name}</option>`).join('');
         }
 
-        // --- CLEAN SPEECH LOGIC ---
+        // --- NEW CLEANER LOGIC ---
         function getCleanText(text) {
-            // This strips [S1], (Keywords), Narrator:, Host:, etc.
             return text
-                .replace(/\[.*?\]/g, '') // Remove brackets
-                .replace(/\(.*?\)/g, '') // Remove parentheses
-                .replace(/Narrator:|Host:|Speaker:|Scene \d:/gi, '') // Remove labels
+                .replace(/#+/g, '') // Remove all hashtags
+                .replace(/\[.*?\]/g, '') // Remove [S1]
+                .replace(/\(.*?\)/g, '') // Remove (Keywords)
+                .replace(/Narrator:|Host:|Speaker:|Scene \d:|Scene \w+:/gi, '') // Remove labels
+                .replace(/\*\*/g, '') // Remove bold marks
                 .trim();
         }
 
         function speakActive() {
             if(!scenes[currentIdx]) return;
+            if(synth.paused) { synth.resume(); return; }
             synth.cancel();
             const clean = getCleanText(scenes[currentIdx].text);
             const m = new SpeechSynthesisUtterance(clean);
@@ -167,7 +172,9 @@
             synth.speak(m);
         }
 
-        // --- PRODUCTION ENGINE ---
+        function pauseSpeech() { if(synth.speaking) synth.pause(); }
+
+        // --- PRODUCTION LOGIC ---
         async function genScript() {
             const btn = document.getElementById('sBtn'); btn.innerText = "WRITING...";
             const key = document.getElementById('groqKeyIn').value;
@@ -177,29 +184,29 @@
                     headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Write 5 cinematic scenes for a YouTube short about ${curN}. Format exactly: [S1] (Visual Keywords) Narrator Text...`}]
+                        messages: [{role: "user", content: `Write 5 cinematic scenes for a YouTube short about ${curN}. Use clear Scene markers. Format: [S1] (Visual Keyword) Narrator Text...`}]
                     })
                 });
                 const d = await r.json();
                 const raw = d.choices[0].message.content;
-                
-                // Parse script into scene objects
                 const rawParts = raw.split(/\[S\d\]/i).filter(p => p.trim().length > 10);
+                
                 scenes = rawParts.map(p => {
-                    const kw = p.match(/\(([^)]+)\)/) ? p.match(/\(([^)]+)\)/)[1] : curN;
+                    const kwMatch = p.match(/\(([^)]+)\)/);
+                    const kw = kwMatch ? kwMatch[1] : curN;
                     return { text: p, keywords: kw, mediaType: 'none', mediaUrl: '' };
                 });
 
                 currentIdx = 0;
                 updatePlayer();
-            } catch(e) { alert("Script Error. Check Key."); }
+            } catch(e) { alert("Script Error. Check Groq Key."); }
             btn.innerText = "1. WRITE SCRIPT";
         }
 
         async function genActiveVisual() {
             const btn = document.getElementById('genMotionBtn');
             const scene = scenes[currentIdx];
-            btn.innerText = "SEARCHING...";
+            btn.innerText = "FETCHING...";
             const pKey = document.getElementById('pexelsKeyIn').value;
 
             try {
@@ -213,13 +220,15 @@
                 } else { throw new Error(); }
             } catch (e) {
                 scene.mediaType = 'image';
-                scene.mediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('Cinematic 8k: ' + scene.keywords)}?width=1280&height=720&nologo=true`;
+                scene.mediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('Cinematic 8k: ' + scene.keywords)}?width=1280&height=720&nologo=true&seed=${Math.random()}`;
             }
             updatePlayer();
             btn.innerText = "GENERATE MOTION";
         }
 
+        // FIXED: This now clears and reloads the media box correctly
         function updatePlayer() {
+            if(!scenes[currentIdx]) return;
             const scene = scenes[currentIdx];
             const box = document.getElementById('mainMediaBox');
             const indicator = document.getElementById('sceneIndicator');
@@ -228,16 +237,26 @@
             indicator.innerText = `Scene ${currentIdx + 1} / ${scenes.length}`;
             textDisplay.innerText = `"${getCleanText(scene.text)}"`;
 
+            // Reset box content
+            box.innerHTML = '';
+
             if (scene.mediaUrl === '') {
-                box.innerHTML = `<div class="text-gray-700 uppercase text-xs">No Visual Generated Yet</div>`;
+                box.innerHTML = `<div class="text-gray-700 uppercase font-black tracking-widest text-center px-10">Waiting for Motion...<br><span class="text-[10px] italic mt-2 block">Click "Generate Motion" for Scene ${currentIdx+1}</span></div>`;
             } else if (scene.mediaType === 'video') {
-                box.innerHTML = `<video src="${scene.mediaUrl}" autoplay loop muted></video>`;
+                const video = document.createElement('video');
+                video.src = scene.mediaUrl;
+                video.autoplay = true;
+                video.loop = true;
+                video.muted = true;
+                video.playsInline = true;
+                box.appendChild(video);
             } else {
-                box.innerHTML = `<img src="${scene.mediaUrl}">`;
+                const img = document.createElement('img');
+                img.src = scene.mediaUrl;
+                box.appendChild(img);
             }
         }
 
-        // --- NAVIGATION ---
         function nextScene() { if(currentIdx < scenes.length - 1) { currentIdx++; updatePlayer(); } }
         function prevScene() { if(currentIdx > 0) { currentIdx--; updatePlayer(); } }
 
@@ -252,10 +271,10 @@
                     const check = setInterval(() => { if(!synth.speaking){ clearInterval(check); r(); } }, 500);
                 });
             }
-            btn.innerText = "2. PLAY SEQUENCE";
+            btn.innerText = "2. PLAY FULL VIDEO";
         }
 
-        // --- CORE UI ---
+        // --- UI TOOLS ---
         function selN(n) { curN = n; document.getElementById('activeNText').innerText = n.toUpperCase(); renderN(); }
         function addN() { const v = document.getElementById('nIn').value; if(v){ niches.push(v); saveN(); renderN(); document.getElementById('nIn').value=""; } }
         function delN(i, e) { e.stopPropagation(); niches.splice(i, 1); saveN(); renderN(); }
@@ -268,7 +287,7 @@
                 </div>`).join('');
         }
         function testVoice() {
-            const m = new SpeechSynthesisUtterance("AutoTube System Online.");
+            const m = new SpeechSynthesisUtterance("Voice Lab Ready.");
             m.voice = synth.getVoices().find(v => v.name === document.getElementById('voiceSelect').value);
             synth.speak(m);
         }
@@ -277,14 +296,14 @@
         async function genIdeas() {
             const g = document.getElementById('ideasGrid');
             const key = document.getElementById('groqKeyIn').value;
-            g.innerHTML = "<div class='col-span-2 text-center py-10'><div class='animate-spin inline-block w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full mb-2'></div><p class='text-[10px] text-gray-500 uppercase'>Consulting Brain...</p></div>";
+            g.innerHTML = "<div class='col-span-2 text-center py-10'><div class='animate-spin inline-block w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full mb-2'></div><p class='text-[10px] text-gray-500 uppercase'>Brainstorming...</p></div>";
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST", 
                     headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant", 
-                        messages: [{role: "user", content: `Give me 5 viral short titles for ${curN}. Return JSON array only: ["Title", "Title"]`}]
+                        messages: [{role: "user", content: `Give me 5 viral short titles for ${curN}. JSON only: ["Title", "Title"]`}]
                     })
                 });
                 const d = await r.json();
@@ -294,8 +313,9 @@
                         <h3 class="font-bold text-sm mb-2">${x}</h3>
                         <p class="text-[9px] text-red-600 font-black uppercase tracking-widest">Start Production →</p>
                     </div>`).join('');
-            } catch(e) { g.innerHTML = "<p class='col-span-2 text-center text-red-500 text-xs'>Error. Check Groq Key.</p>"; }
+            } catch(e) { g.innerHTML = "<p class='col-span-2 text-center text-red-500 text-xs'>Error. Check Keys.</p>"; }
         }
     </script>
 </body>
-</html>
+    </html>
+    
