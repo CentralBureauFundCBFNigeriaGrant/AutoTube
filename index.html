@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoTube | v5.9 Director's Cut</title>
+    <title>AutoTube | v6.0 Emotion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Oswald:wght@700&display=swap');
-        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         .yt-red { background-color: #f00; }
         .card { background-color: #0f0f0f; border: 1px solid #282828; border-radius: 12px; }
-        
         .player-stage { width: 100%; aspect-ratio: 16/9; background: #050505; border-radius: 12px; overflow: hidden; border: 1px solid #333; position: relative; }
         video, img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* CINEMATIC SUBTITLES */
-        .subtitle-overlay { position: absolute; bottom: 10%; left: 0; width: 100%; text-align: center; pointer-events: none; padding: 0 20px; z-index: 50; }
-        #subtitleText { font-family: 'Oswald', sans-serif; font-size: 0.5rem; text-transform: uppercase; color: #fff; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0px 2px 5px rgba(0,0,0,1); line-height: 1.2; display: inline-block; background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
+        /* SUBTITLES - SET TO 0.5rem */
+        .subtitle-overlay { position: absolute; bottom: 8%; left: 0; width: 100%; text-align: center; pointer-events: none; z-index: 50; }
+        #subtitleText { font-family: 'Oswald', sans-serif; font-size: 0.5rem; text-transform: uppercase; color: #fff; text-shadow: 1px 1px 2px #000; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 2px; display: none; }
 
         .control-btn { transition: 0.2s; border: 1px solid #333; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .sidebar-item { border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; padding: 12px; font-size: 11px; margin-bottom: 6px; border: 1px solid transparent; background: #151515; color: #999; }
         .active-niche { background-color: #272727 !important; border-color: #f00 !important; color: #f00 !important; }
-        .wrap-text { word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
+        input[type=range] { accent-color: #f00; height: 4px; }
     </style>
 </head>
 <body class="p-2 md:p-6" onload="initApp()">
@@ -31,33 +30,43 @@
             <div class="w-10 h-7 yt-red rounded flex items-center justify-center">
                 <div class="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1"></div>
             </div>
-            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v5.9 PRO</span></h1>
+            <h1 class="text-lg font-black tracking-tighter uppercase italic">AutoTube <span class="text-[9px] not-italic text-gray-500">v6.0 EMOTION</span></h1>
         </div>
     </div>
 
     <div class="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-4">
         <div class="w-full lg:w-1/3 space-y-4">
             <div class="card p-4 border-t-2 border-red-600">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-3">1. Niches</h2>
-                <div id="nicheList" class="max-h-48 overflow-y-auto mb-3 space-y-1"></div>
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-3 tracking-widest">1. Production Mood</h2>
+                <select id="moodSelect" class="w-full bg-black border border-[#333] p-3 rounded mb-4 text-xs font-bold text-red-500 outline-none">
+                    <option value="Dramatic & Epic">DRAMATIC & EPIC</option>
+                    <option value="Scary & Mysterious">SCARY & MYSTERIOUS</option>
+                    <option value="Inspirational & Emotional">INSPIRATIONAL</option>
+                    <option value="High-Energy & Tech">HIGH-ENERGY TECH</option>
+                </select>
+                
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-3">2. Niches</h2>
+                <div id="nicheList" class="max-h-40 overflow-y-auto mb-3 space-y-1"></div>
                 <div class="flex gap-2 mb-3">
-                    <input id="nIn" type="text" placeholder="Add niche..." class="flex-1 bg-black border border-[#333] rounded p-2 text-xs outline-none">
-                    <button onclick="addNewNiche()" class="bg-[#272727] px-4 rounded">+</button>
+                    <input id="nIn" type="text" placeholder="Add..." class="flex-1 bg-black border border-[#333] rounded p-2 text-xs outline-none focus:border-red-600">
+                    <button onclick="addNewNiche()" class="bg-[#272727] px-4 rounded text-white">+</button>
                 </div>
-                <button onclick="genIdeas()" class="w-full yt-red py-3 rounded-lg font-black text-xs uppercase shadow-lg">Brainstorm</button>
+                <button onclick="genIdeas()" class="w-full yt-red py-3 rounded-lg font-black text-xs uppercase shadow-lg">Brainstorm Topics</button>
                 <div id="ideasGrid" class="mt-3 space-y-1"></div>
             </div>
+
             <div class="card p-4">
-                <input id="groqKeyIn" type="password" class="w-full mb-2 bg-black border border-[#222] text-[10px] p-2 rounded" onchange="saveKeys()" placeholder="Groq Key">
-                <input id="pexelsKeyIn" type="password" class="w-full bg-black border border-[#222] text-[10px] p-2 rounded" onchange="saveKeys()" placeholder="Pexels Key">
+                <h2 class="text-[10px] font-black text-gray-500 uppercase mb-2">Master Keys</h2>
+                <input id="groqKeyIn" type="password" class="w-full mb-2 bg-black border border-[#222] text-[10px] p-2 rounded outline-none" onchange="saveKeys()" placeholder="Groq Key">
+                <input id="pexelsKeyIn" type="password" class="w-full mb-2 bg-black border border-[#222] text-[10px] p-2 rounded outline-none" onchange="saveKeys()" placeholder="Pexels Key">
             </div>
         </div>
 
         <div class="w-full lg:w-2/3 space-y-4">
             <div class="card p-4 md:p-6 border-b-2 border-red-600">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-black uppercase text-red-500" id="autoStatus">READY</h2>
-                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase">Launch Production</button>
+                    <h2 class="text-sm font-black uppercase truncate text-red-500" id="autoStatus">STUDIO IDLE</h2>
+                    <button onclick="genFullProduction()" id="prodBtn" class="bg-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase shadow-lg shadow-emerald-900/30">Launch production</button>
                 </div>
 
                 <div class="player-stage mb-4">
@@ -69,25 +78,37 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-black p-4 rounded-xl border border-[#222]">
-                        <p class="text-[9px] text-gray-500 font-black mb-2 uppercase">Current Script</p>
-                        <div id="currentSceneText" class="text-xs italic text-white wrap-text min-h-[40px]">---</div>
+                    <div class="bg-black p-4 rounded-xl border border-[#222] space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[9px] text-gray-500 font-black uppercase">Voice Speed</label>
+                            <span id="rateVal" class="text-[9px] text-red-500 font-bold">0.9x</span>
+                        </div>
+                        <input type="range" id="vRate" min="0.5" max="1.5" step="0.1" value="0.9" class="w-full" oninput="document.getElementById('rateVal').innerText=this.value+'x'">
+                        
+                        <div class="flex justify-between items-center">
+                            <label class="text-[9px] text-gray-500 font-black uppercase">Voice Pitch</label>
+                            <span id="pitchVal" class="text-[9px] text-red-500 font-bold">1.0</span>
+                        </div>
+                        <input type="range" id="vPitch" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full" oninput="document.getElementById('pitchVal').innerText=this.value">
                     </div>
+
                     <div class="space-y-2">
-                        <select id="voiceSelect" class="w-full bg-black border border-[#222] text-xs text-red-500 font-bold p-2 rounded"></select>
+                        <select id="voiceSelect" class="w-full bg-black border border-[#222] text-xs text-red-500 font-bold p-3 rounded outline-none uppercase"></select>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="speakActive()" class="control-btn bg-white text-black">▶ VOICE</button>
+                            <button onclick="speakActive()" class="control-btn bg-white text-black">▶ VOICE ONLY</button>
                             <button onclick="pauseSpeech()" class="control-btn bg-[#111] text-white">⏸ PAUSE</button>
-                            <button onclick="playFullSequence()" class="col-span-2 control-btn bg-red-600 text-white py-3 shadow-lg">🎬 BROADCAST FULL 20</button>
+                            <button onclick="playFullSequence()" class="col-span-2 control-btn bg-red-600 text-white border-none py-4 shadow-xl shadow-red-900/40">🎬 BROADCAST MOVIE (20 SCENES)</button>
                         </div>
                     </div>
                 </div>
+                <div id="currentSceneText" class="mt-4 p-4 bg-black/50 rounded-lg text-xs italic text-gray-400 border-l-2 border-red-600">---</div>
             </div>
         </div>
     </div>
-    </body>
+    <audio id="bgAtmosphere" loop></audio>
+                        </body>
     <script>
-    let niches = ["African Folk Tales", "Bible History", "Modern AI Tech", "Luxury Lifestyle"];
+    let niches = ["African Folk Tales", "Bible History", "Modern AI Tech", "Success Psychology"];
     let curN = niches[0];
     let scenes = []; 
     let currentIdx = 0;
@@ -99,7 +120,6 @@
         const saved = localStorage.getItem('myNiches');
         if(saved) { const parsed = JSON.parse(saved); if(parsed.length > 0) niches = parsed; }
         renderNicheUI();
-        document.getElementById('activeNText').innerText = curN.toUpperCase();
         setTimeout(loadVoices, 500);
     }
 
@@ -147,13 +167,13 @@
         const g = document.getElementById('ideasGrid');
         const key = document.getElementById('groqKeyIn').value;
         if(!key) return alert("Keys Missing!");
-        g.innerHTML = "<div class='text-[10px] animate-pulse text-red-600 text-center'>THINKING...</div>";
+        g.innerHTML = "<div class='text-[10px] animate-pulse text-red-600 text-center'>SCANNING...</div>";
         try {
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST", headers: {"Authorization": `Bearer ${key}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
-                    messages: [{role: "system", content: "Return ONLY JSON array of strings."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
+                    messages: [{role: "system", content: "JSON only."}, {role: "user", content: `5 viral titles for: ${curN}.`}]
                 })
             });
             const d = await r.json();
@@ -181,17 +201,18 @@
     async function genFullProduction() {
         const btn = document.getElementById('prodBtn');
         const status = document.getElementById('autoStatus');
+        const mood = document.getElementById('moodSelect').value;
         const gKey = document.getElementById('groqKeyIn').value;
         const pKey = document.getElementById('pexelsKeyIn').value;
-        btn.innerText = "FILMING...";
+        btn.innerText = "🎬 FILMING...";
         try {
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST", headers: {"Authorization": `Bearer ${gKey}`, "Content-Type": "application/json"},
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant", 
                     messages: [
-                        {role: "system", content: "You are a YouTube Script Bot. Return ONLY JSON. SCENE 10 MUST include: 'Make sure to subscribe for more'. SCENE 20 MUST end with: 'Like and Subscribe for the next episode'. Style: Cinematic."},
-                        {role: "user", content: `Create 20 scenes for: "${status.innerText}". JSON: [{"v_prompt": "pexels keyword", "narration": "text"}]`}
+                        {role: "system", content: `You are a Cinematic Director. Output ONLY JSON. MOOD: ${mood}. RULES: Use dramatic, emotional language. Scene 10 MUST include a subscribe nudge. Scene 20 MUST end with a subscribe nudge.`},
+                        {role: "user", content: `Create 20 scenes for: "${status.innerText}". JSON: [{"v_prompt": "pexels visual description", "narration": "emotional text", "sfx": "one word for sound effect, e.g. thunder, wind, crowd"}]`}
                     ]
                 })
             });
@@ -216,7 +237,7 @@
                 if(currentIdx === i) updatePlayer();
             }
             btn.innerText = "DONE";
-        } catch(e) { alert("AI Error. Retry."); btn.innerText = "RETRY"; }
+        } catch(e) { alert("AI Logic Error. Retry."); btn.innerText = "RETRY"; }
     }
 
     function updatePlayer() {
@@ -230,6 +251,15 @@
         box.innerHTML = '';
         if (s.mType === 'video') box.innerHTML = `<video id="activeVideo" src="${s.mUrl}" autoplay loop muted playsinline></video>`;
         else box.innerHTML = `<img src="${s.mUrl}">`;
+        
+        // --- SOUND EFFECT LOGIC ---
+        const audio = document.getElementById('bgAtmosphere');
+        if(s.sfx) {
+           // We use a royalty-free nature/ambient proxy for SFX keywords
+           audio.src = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3`; // Placeholder for background loop
+           audio.volume = 0.2;
+           audio.play().catch(e => console.log("Audio needs user interaction"));
+        }
     }
 
     function speakActive() {
@@ -238,14 +268,17 @@
         synth.cancel();
         const m = new SpeechSynthesisUtterance(cleanScript(scenes[currentIdx].narration));
         m.voice = synth.getVoices().find(v => v.name === document.getElementById('voiceSelect').value);
+        m.rate = document.getElementById('vRate').value;
+        m.pitch = document.getElementById('vPitch').value;
         m.onstart = () => { document.getElementById('subtitleText').style.display = 'inline-block'; };
         m.onend = () => { if(currentIdx === scenes.length-1) document.getElementById('subtitleText').innerText = ""; };
         synth.speak(m);
     }
     
-    function pauseSpeech() { synth.pause(); }
+    function pauseSpeech() { synth.pause(); document.getElementById('bgAtmosphere').pause(); }
     
     async function playFullSequence() {
+        document.getElementById('bgAtmosphere').play();
         for(let i=0; i < scenes.length; i++) {
             currentIdx = i; updatePlayer(); speakActive();
             await new Promise(r => { const check = setInterval(() => { if(!synth.speaking){ clearInterval(check); r(); } }, 500); });
@@ -253,3 +286,4 @@
     }
 </script>
 </html>
+
