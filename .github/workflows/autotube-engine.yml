@@ -28,8 +28,28 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python marvel_engine.py
 
+      - name: Trigger Creatomate Render
+        env:
+          CREATOMATE_API_KEY: ${{ secrets.CREATOMATE_API_KEY }}
+          TEMPLATE_ID: "bc796d8a-e720-41fb-89f8-284d1a49a844"
+        run: |
+          # 1. Read the script and format it safely for the API
+          SCRIPT_DATA=$(cat generated_script.md | jq -Rs .)
+
+          # 2. Send the request to Creatomate
+          curl https://api.creatomate.com/v2/renders \
+            -H "Authorization: Bearer $CREATOMATE_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"template_id\": \"$TEMPLATE_ID\",
+              \"modifications\": {
+                \"Text-1\": $SCRIPT_DATA
+              }
+            }"
+
       - name: Upload Script Artifact
         uses: actions/upload-artifact@v4
         with:
           name: youtube-script
           path: generated_script.md
+          
