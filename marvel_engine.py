@@ -1,45 +1,25 @@
-import requests
-import json
+import os
+from groq import Groq
 
-# 1. Your specific Make.com Webhook URL
-WEBHOOK_URL = "https://hook.us2.make.com/0slt5wk6nbkp41mi4463ep3tx2lpfklj"
+# 1. Setup the Groq Client
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-def send_to_make(mission_data, script_data):
-    """Sends the generated content to Make.com with robust error checking."""
-    
-    payload = {
-        "mission": mission_data,
-        "script": script_data
-    }
+# 2. Read your mission
+with open("mission.txt", "r") as f:
+    mission_content = f.read()
 
-    print(f"--- Sending data to Make.com ---")
-    
-    try:
-        # We add a standard User-Agent header to prevent being blocked as a bot
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0" 
-        }
+# 3. Ask Llama 3 to write the script
+completion = client.chat.completions.create(
+    model="llama3-8b-8192",
+    messages=[
+        {"role": "system", "content": "You are an expert YouTube script writer for a Marvel-themed channel."},
+        {"role": "user", "content": f"Write a short, engaging video script based on this mission: {mission_content}"}
+    ]
+)
 
-        # Sending the POST request
-        response = requests.post(
-            WEBHOOK_URL, 
-            data=json.dumps(payload), 
-            headers=headers,
-            timeout=30
-        )
+# 4. Save the result
+script = completion.choices[0].message.content
+with open("generated_script.md", "w") as f:
+    f.write(script)
 
-        # This will print the status in your GitHub Actions log
-        if response.status_code == 200 or response.text == "Accepted":
-            print(f"✅ SUCCESS: Data received by Make.com. Status: {response.status_code}")
-            print(f"Response body: {response.text}")
-        else:
-            print(f"❌ FAILED: Make.com returned status {response.status_code}")
-            print(f"Response detail: {response.text}")
-
-    except Exception as e:
-        print(f"🚨 CRITICAL ERROR: Could not connect to the webhook. Reason: {e}")
-
-# --- Trigger the function inside your existing script flow ---
-# send_to_make(mission, script)
-do it
+print("Script successfully generated using Llama 3!")
