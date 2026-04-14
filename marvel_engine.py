@@ -1,70 +1,45 @@
-import os
-import google.generativeai as genai
-import requests  # Added to send data to your webhook
+import requests
+import json
 
-def generate_video_script(mission_text):
-    # Setup Gemini API
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
-        return "Error: GEMINI_API_KEY is not set in GitHub Secrets."
+# 1. Your specific Make.com Webhook URL
+WEBHOOK_URL = "https://hook.us2.make.com/0slt5wk6nbkp41mi4463ep3tx2lpfklj"
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-
-    prompt = f"""
-    You are Marvel, an expert YouTube Automation Engine.
-    I have a mission: {mission_text}
+def send_to_make(mission_data, script_data):
+    """Sends the generated content to Make.com with robust error checking."""
     
-    Create a high-retention YouTube script for a faceless video.
-    Include:
-    1. A 'hook' for the first 5 seconds.
-    2. 10 clear, engaging points.
-    3. A call to action at the end.
-    Keep the tone viral and energetic.
-    """
-
-    print(f"--- Processing Mission: {mission_text} ---")
-    response = model.generate_content(prompt)
-    return response.text
-
-def main():
-    print("--- Marvel Engine Activated ---")
-    
-    # Your Make.com Webhook URL
-    WEBHOOK_URL = "https://hook.us2.make.com/0slt5wk6nbkp41mi4463ep3tx2lpfklj"
-    
-    # Read the mission you typed in mission.txt
-    try:
-        with open('mission.txt', 'r') as f:
-            mission = f.read().strip()
-    except FileNotFoundError:
-        mission = "No mission found. Defaulting to: Why AI is the future."
-
-    # Run the AI logic
-    script = generate_video_script(mission)
-    
-    # 1. Save the output locally (as a backup)
-    with open('generated_script.md', 'w') as f:
-        f.write(script)
-    
-    # 2. Send the script to Make.com Webhook
-    print(f"--- Sending data to Make.com ---")
     payload = {
-        "mission": mission,
-        "script": script
+        "mission": mission_data,
+        "script": script_data
     }
+
+    print(f"--- Sending data to Make.com ---")
     
     try:
-        response = requests.post(WEBHOOK_URL, json=payload)
-        if response.status_code == 200:
-            print("--- Success! Data received by Make.com ---")
+        # We add a standard User-Agent header to prevent being blocked as a bot
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0" 
+        }
+
+        # Sending the POST request
+        response = requests.post(
+            WEBHOOK_URL, 
+            data=json.dumps(payload), 
+            headers=headers,
+            timeout=30
+        )
+
+        # This will print the status in your GitHub Actions log
+        if response.status_code == 200 or response.text == "Accepted":
+            print(f"✅ SUCCESS: Data received by Make.com. Status: {response.status_code}")
+            print(f"Response body: {response.text}")
         else:
-            print(f"--- Webhook Error: {response.status_code} ---")
+            print(f"❌ FAILED: Make.com returned status {response.status_code}")
+            print(f"Response detail: {response.text}")
+
     except Exception as e:
-        print(f"--- Failed to connect to Webhook: {e} ---")
+        print(f"🚨 CRITICAL ERROR: Could not connect to the webhook. Reason: {e}")
 
-    print("--- Process Complete! ---")
+# --- Trigger the function inside your existing script flow ---
+# send_to_make(mission, script) 
 
-if __name__ == "__main__":
-    main()
-why
