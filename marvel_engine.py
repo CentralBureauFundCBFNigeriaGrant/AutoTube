@@ -1,5 +1,6 @@
 import os
 import google.generativeai as genai
+import requests  # Added to send data to your webhook
 
 def generate_video_script(mission_text):
     # Setup Gemini API
@@ -29,6 +30,9 @@ def generate_video_script(mission_text):
 def main():
     print("--- Marvel Engine Activated ---")
     
+    # Your Make.com Webhook URL
+    WEBHOOK_URL = "https://hook.us2.make.com/0slt5wk6nbkp41mi4463ep3tx2lpfklj"
+    
     # Read the mission you typed in mission.txt
     try:
         with open('mission.txt', 'r') as f:
@@ -39,11 +43,27 @@ def main():
     # Run the AI logic
     script = generate_video_script(mission)
     
-    # Save the output to a new file so you can see it
+    # 1. Save the output locally (as a backup)
     with open('generated_script.md', 'w') as f:
         f.write(script)
     
-    print("--- Success! Script generated in generated_script.md ---")
+    # 2. Send the script to Make.com Webhook
+    print(f"--- Sending data to Make.com ---")
+    payload = {
+        "mission": mission,
+        "script": script
+    }
+    
+    try:
+        response = requests.post(WEBHOOK_URL, json=payload)
+        if response.status_code == 200:
+            print("--- Success! Data received by Make.com ---")
+        else:
+            print(f"--- Webhook Error: {response.status_code} ---")
+    except Exception as e:
+        print(f"--- Failed to connect to Webhook: {e} ---")
+
+    print("--- Process Complete! ---")
 
 if __name__ == "__main__":
     main()
