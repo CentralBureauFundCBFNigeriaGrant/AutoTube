@@ -43,3 +43,4 @@ def send_to_make(mission_data, script_data):
 # --- Trigger the function inside your existing script flow ---
 # send_to_make(mission, script) 
 
+start
