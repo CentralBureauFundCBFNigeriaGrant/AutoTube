@@ -27,7 +27,7 @@ def generate_marvel_script():
     # 3. Call the Groq API (Llama 3 8B Model)
     try:
         completion = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {
                     "role": "system", 
