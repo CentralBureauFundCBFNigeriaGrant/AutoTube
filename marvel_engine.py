@@ -41,6 +41,4 @@ def send_to_make(mission_data, script_data):
         print(f"🚨 CRITICAL ERROR: Could not connect to the webhook. Reason: {e}")
 
 # --- Trigger the function inside your existing script flow ---
-# send_to_make(mission, script) 
-
-start
+# send_to_make(mission, script)
